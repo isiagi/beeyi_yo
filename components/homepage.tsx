@@ -60,17 +60,20 @@ export function HomepageComponent() {
     {
       title: "New Arrivals",
       description: "Check out the latest products",
-      image: "/placeholder.svg?height=400&width=600&text=New+Arrivals",
+      image:
+        "https://images.unsplash.com/photo-1695527081756-6e15ed27c6a3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
     },
     {
       title: "Best Sellers",
       description: "Our most popular items",
-      image: "/placeholder.svg?height=400&width=600&text=Best+Sellers",
+      image:
+        "https://plus.unsplash.com/premium_photo-1673481767533-60901d9146ad?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
     },
     {
       title: "Special Offers",
       description: "Limited time deals",
-      image: "/placeholder.svg?height=400&width=600&text=Special+Offers",
+      image:
+        "https://images.unsplash.com/photo-1601992342430-9dbef88d85fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
     },
   ];
 
