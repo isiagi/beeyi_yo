@@ -385,7 +385,7 @@ export function CategoryPageComponent() {
                   <CardContent className="p-4">
                     <div className="aspect-square relative mb-4">
                       <img
-                        src={`/placeholder.svg?height=300&width=300&text=Product+${product.id}`}
+                        src={`https://images.unsplash.com/photo-1601992342430-9dbef88d85fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fGJhZ3N8ZW58MHx8MHx8fDA%3D`}
                         alt={product.name}
                         className="object-cover w-full h-full rounded-md"
                       />
