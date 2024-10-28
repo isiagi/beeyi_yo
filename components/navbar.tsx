@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
@@ -38,12 +39,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import useAuthStore from "@/lib/authstore";
+import { useRouter } from "next/navigation";
 
 function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedPromotion, setSelectedPromotion] = useState("no_promo");
+  const [formData, setFormData] = useState({
+    product_name: "",
+    product_price: "",
+    product_description: "",
+    product_location: "",
+    product_image: "",
+    product_condition: "",
+    product_brand: "",
+    product_category: "",
+    product_promotion: "",
+    product_sub_category: "",
+  });
 
   // const categories = [
   //   "Electronics",
@@ -55,6 +80,18 @@ function Navbar() {
   //   "Automotive",
   //   "Books",
   // ];
+
+  const promotionOptions = [
+    { id: "no_promo", label: "No promo", price: "Free", duration: "" },
+    { id: "top_7", label: "TOP", price: "USh 10,000", duration: "7 days" },
+    { id: "top_30", label: "TOP", price: "USh 30,000", duration: "30 days" },
+    {
+      id: "boost_premium",
+      label: "Boost Premium promo",
+      price: "USh 137,699",
+      duration: "1 month (28 days)",
+    },
+  ];
 
   const categories = [
     {
@@ -80,31 +117,57 @@ function Navbar() {
     },
   ];
 
+  const user = useAuthStore((state: any) => state.user);
+  const router = useRouter();
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Searching for:", searchQuery);
     // Implement actual search logic here
   };
 
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
-    setSelectedSubcategory("");
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+
+    console.log(id, value);
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form Data Submitted:", formData);
+
+    // TODO: Integrate backend submission logic here, e.g.:
+    // await fetch('/api/list-product', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(formData),
+    // });
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
-          <Link className="mr-6 flex items-center space-x-2" href="/">
-            <span className="hidden font-bold sm:inline-block">Beeyi Yo</span>
+          <Link className="mr-6 ml-6 flex items-center space-x-2" href="/">
+            <span className="hidden text-xl font-bold sm:inline-block">
+              Beeyi Yo
+            </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link
+            {/* <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
               href="/products"
             >
               Products
-            </Link>
+            </Link> */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -145,12 +208,12 @@ function Navbar() {
                 </Accordion>
               </SheetContent>
             </Sheet>
-            <Link
+            {/* <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
               href="/about"
             >
               About
-            </Link>
+            </Link> */}
           </nav>
         </div>
         <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
@@ -169,13 +232,13 @@ function Navbar() {
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col space-y-4 mt-4">
-              <Link
+              {/* <Link
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
                 href="/products"
                 onClick={() => setIsNavOpen(false)}
               >
                 Products
-              </Link>
+              </Link> */}
               <Accordion type="single" collapsible className="w-full">
                 {categories.map((category, index) => (
                   <AccordionItem key={index} value={`item-${index}`}>
@@ -197,13 +260,13 @@ function Navbar() {
                   </AccordionItem>
                 ))}
               </Accordion>
-              <Link
+              {/* <Link
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
                 href="/about"
                 onClick={() => setIsNavOpen(false)}
               >
                 About
-              </Link>
+              </Link> */}
             </nav>
           </SheetContent>
         </Sheet>
@@ -224,103 +287,218 @@ function Navbar() {
           </div>
           <nav className="flex items-center space-x-2">
             <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="flex">
+              <DialogTrigger
+                asChild
+                onClick={() => !user && router.push("/signin")}
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex"
+                >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Quick Sell
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[525px] overflow-y-scroll max-h-screen">
-                <DialogHeader>
-                  <DialogTitle>List Your Product</DialogTitle>
-                  <DialogDescription>
-                    Fill out the details to list your product for sale.
-                  </DialogDescription>
-                </DialogHeader>
-                <form className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-name">Product Name</Label>
-                    <Input id="product-name" placeholder="Enter product name" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-description">Description</Label>
-                    <Textarea
-                      id="product-description"
-                      placeholder="Describe your product"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-category">Category</Label>
-                    <Select onValueChange={handleCategoryChange}>
-                      <SelectTrigger id="product-category">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.name} value={category.name}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {selectedCategory && (
+              {user && (
+                <DialogContent className="sm:max-w-[525px] overflow-y-scroll max-h-screen">
+                  <DialogHeader>
+                    <DialogTitle>List Your Product</DialogTitle>
+                    <DialogDescription>
+                      Fill out the details to list your product for sale.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form className="grid gap-4 py-4" onSubmit={handleFormSubmit}>
                     <div className="grid gap-2">
-                      <Label htmlFor="product-subcategory">Subcategory</Label>
+                      <Label htmlFor="product_name">Product Name</Label>
+                      <Input
+                        id="product_name"
+                        placeholder="Enter product name"
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_description">Description</Label>
+                      <Textarea
+                        id="product_description"
+                        placeholder="Describe your product"
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_category">Category</Label>
                       <Select
-                        value={selectedSubcategory}
-                        onValueChange={setSelectedSubcategory}
+                        onValueChange={(value) => {
+                          setSelectedCategory(value);
+                          setSelectedSubcategory("");
+                          setFormData({ ...formData, product_category: value });
+                        }}
                       >
-                        <SelectTrigger id="product-subcategory">
-                          <SelectValue placeholder="Select a subcategory" />
+                        <SelectTrigger id="product_category">
+                          <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories
-                            .find((cat) => cat.name === selectedCategory)
-                            ?.subcategories.map((subcat) => (
-                              <SelectItem key={subcat} value={subcat}>
-                                {subcat}
-                              </SelectItem>
-                            ))}
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category.name}
+                              value={category.name}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
-                  )}
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-price">Price</Label>
-                    <Input
-                      id="product-price"
-                      type="number"
-                      placeholder="Enter price"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-price">Location</Label>
-                    <Input
-                      id="product-location"
-                      type="text"
-                      placeholder="Enter location"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-image">Product Image</Label>
-                    <Input id="product-image" type="file" accept="image/*" />
-                  </div>
-                  <Button type="submit">List Product</Button>
-                </form>
-              </DialogContent>
+                    {selectedCategory && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="product_sub_category">
+                          Subcategory
+                        </Label>
+                        <Select
+                          value={selectedSubcategory}
+                          onValueChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              product_sub_category: value,
+                            })
+                          }
+                        >
+                          <SelectTrigger id="product_sub_category">
+                            <SelectValue placeholder="Select a subcategory" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories
+                              .find((cat) => cat.name === selectedCategory)
+                              ?.subcategories.map((subcat) => (
+                                <SelectItem key={subcat} value={subcat}>
+                                  {subcat}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_price">Price</Label>
+                      <Input
+                        id="product_price"
+                        type="number"
+                        placeholder="Enter price"
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_condition">Condition</Label>
+                      <Select
+                        onValueChange={(value) => {
+                          setFormData({
+                            ...formData,
+                            product_condition: value,
+                          });
+                        }}
+                      >
+                        <SelectTrigger id="product_condition">
+                          <SelectValue placeholder="Select a condition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category.name}
+                              value={category.name}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_brand">Brand</Label>
+                      <Input
+                        id="product_brand"
+                        type="number"
+                        placeholder="Enter brand"
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_location">Location</Label>
+                      <Input
+                        id="product_location"
+                        type="text"
+                        placeholder="Enter location"
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product_image">Product Image</Label>
+                      <Input
+                        id="product_image"
+                        onChange={handleChange}
+                        type="file"
+                        accept="image/*"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Promote your ad</Label>
+                      <RadioGroup
+                        value={selectedPromotion}
+                        onValueChange={setSelectedPromotion}
+                      >
+                        {promotionOptions.map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem value={option.id} id={option.id} />
+                            <Label htmlFor={option.id} className="flex-1">
+                              <span className="font-medium">
+                                {option.label}
+                              </span>
+                              {option.duration && (
+                                <span className="ml-2 text-sm text-gray-500">
+                                  ({option.duration})
+                                </span>
+                              )}
+                            </Label>
+                            <span className="text-sm font-medium">
+                              {option.price}
+                            </span>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    </div>
+                    <Button type="submit">List Product</Button>
+                  </form>
+                </DialogContent>
+              )}
             </Dialog>
             {/* <Button variant="ghost" size="icon">
               <ShoppingCart className="h-4 w-4" />
               <span className="sr-only">Cart</span>
             </Button> */}
-            <Button variant="ghost" size="icon">
-              <Avatar className="h-6 w-6">
-                <AvatarImage alt="User" src="/placeholder-user.jpg" />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-              <span className="sr-only">User</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 w-10 cursor-pointer">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage alt="User" src="/placeholder-user.jpg" />
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <span className="sr-only">User</span>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="mr-5">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem>Team</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/signin">Login</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         </div>
       </div>

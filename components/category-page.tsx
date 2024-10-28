@@ -398,9 +398,6 @@ export function CategoryPageComponent() {
                       ${product.price.toFixed(2)}
                     </p>
                   </CardContent>
-                  <CardFooter className="p-4">
-                    <Button className="w-full">Add to Cart</Button>
-                  </CardFooter>
                 </Card>
               ))}
           </div>

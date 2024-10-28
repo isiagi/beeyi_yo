@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import {
   Sheet,
@@ -213,24 +207,21 @@ export function HomepageComponent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((product) => (
                 <Link key={product} href={`/detail/${product}`}>
-                  <Card key={product}>
-                    <CardHeader>
-                      <img
-                        src={`https://images.unsplash.com/photo-1521316730702-829a8e30dfd0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bWlzc2lvbiUyMGFuZCUyMGdvYWx8ZW58MHx8MHx8fDA%3D`}
-                        alt={`Product ${product}`}
-                        className="w-full h-48 object-cover"
-                      />
-                    </CardHeader>
-                    <CardContent>
-                      <CardTitle>Product {product}</CardTitle>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  <Card key={product} className="flex flex-col justify-between">
+                    <CardContent className="p-4">
+                      <div className="aspect-square relative mb-4">
+                        <img
+                          src={`https://images.unsplash.com/photo-1601992342430-9dbef88d85fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fGJhZ3N8ZW58MHx8MHx8fDA%3D`}
+                          alt={"rtyutr"}
+                          className="object-cover w-full h-full rounded-md"
+                        />
+                      </div>
+                      <h2 className="text-lg font-semibold">tyuo</h2>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Rating: 5/5
                       </p>
+                      <p className="text-lg font-bold">$4568</p>
                     </CardContent>
-                    <CardFooter className="flex justify-between">
-                      <span className="font-bold">$99.99</span>
-                      <Button variant="outline">Add to Cart</Button>
-                    </CardFooter>
                   </Card>
                 </Link>
               ))}
