@@ -22,9 +22,12 @@ import {
 } from "@/components/ui/accordion";
 import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { axiosInstance } from "@/lib/base";
 
 export function HomepageComponent() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [loadings, setLoading] = useState(false);
 
   const categories = [
     {
@@ -89,6 +92,24 @@ export function HomepageComponent() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const products = await axiosInstance.get("/products/product/");
+      console.log("zzzz", products.data);
+
+      setLoading(false);
+      setProducts(products.data);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const Ugx = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "UGX",
+  });
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
@@ -97,8 +118,11 @@ export function HomepageComponent() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                    Tunda ku Beeyi Yo, Gula ku Beeyi Yo
+                  <h1 className="text-3xl font-bold leading-loose tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                    Tunda ku Beeyi <span className="text-yellow-600">Yo</span>,
+                  </h1>
+                  <h1 className="text-3xl mt-0 md:mt-auto md:pt-3 font-bold leading-loose tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                    Gula ku Beeyi <span className="text-yellow-600">Yo</span>
                   </h1>
                   <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
                     Your one-stop marketplace for buying unique items and
@@ -204,28 +228,39 @@ export function HomepageComponent() {
             <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-center mb-8">
               Featured Products
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((product) => (
-                <Link key={product} href={`/detail/${product}`}>
-                  <Card key={product} className="flex flex-col justify-between">
-                    <CardContent className="p-4">
-                      <div className="aspect-square relative mb-4">
-                        <img
-                          src={`https://images.unsplash.com/photo-1601992342430-9dbef88d85fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fGJhZ3N8ZW58MHx8MHx8fDA%3D`}
-                          alt={"rtyutr"}
-                          className="object-cover w-full h-full rounded-md"
-                        />
-                      </div>
-                      <h2 className="text-lg font-semibold">tyuo</h2>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Rating: 5/5
-                      </p>
-                      <p className="text-lg font-bold">$4568</p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+            {loadings ? (
+              <Loading />
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {products?.map((product) => (
+                  <Link key={product.id} href={`/detail/${product.id}`}>
+                    <Card
+                      key={product}
+                      className="flex flex-col justify-between"
+                    >
+                      <CardContent className="p-4">
+                        <div className="aspect-square relative mb-4">
+                          <img
+                            src={product.product_image}
+                            alt={"rtyutr"}
+                            className="object-cover w-full h-full rounded-md"
+                          />
+                        </div>
+                        <h2 className="text-lg font-semibold">
+                          {product.product_name}
+                        </h2>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Rating: 5/5
+                        </p>
+                        <p className="text-lg font-bold">
+                          {Ugx.format(product.product_price)}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -250,5 +285,13 @@ export function HomepageComponent() {
         </div>
       </footer>
     </div>
+  );
+}
+
+function Loading() {
+  return (
+    <>
+      <h1>Loading...</h1>
+    </>
   );
 }

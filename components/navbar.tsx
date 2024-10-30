@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { Menu, PlusCircle, Search } from "lucide-react";
 import {
@@ -50,12 +50,16 @@ import {
 } from "./ui/dropdown-menu";
 import useAuthStore from "@/lib/authstore";
 import { useRouter } from "next/navigation";
+import { axiosInstance } from "@/lib/base";
+import Image from "next/image";
+import img from "@/app/beeyi.jpeg";
 
 function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [openSell, setOpenSell] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState("no_promo");
   const [formData, setFormData] = useState({
     product_name: "",
@@ -69,6 +73,7 @@ function Navbar() {
     product_promotion: "",
     product_sub_category: "",
   });
+  const [data, setData] = useState([]);
 
   // const categories = [
   //   "Electronics",
@@ -117,6 +122,8 @@ function Navbar() {
     },
   ];
 
+  const conditions = ["new", "used", "refurbished"];
+
   const user = useAuthStore((state: any) => state.user);
   const router = useRouter();
 
@@ -127,20 +134,43 @@ function Navbar() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
   ) => {
-    const { id, value } = e.target;
+    const { id, files, value } = e.target;
 
-    console.log(id, value);
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
+    if (id === "product_image" && files) {
+      setFormData((prev) => ({ ...prev, [id]: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [id]: value }));
+    }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  console.log("data", data);
+
+  useEffect(() => {
+    const fetchCategorys = async () => {
+      try {
+        const response = await axiosInstance.get("/categories/categories/");
+        setData(response.data);
+
+        console.log(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchCategorys();
+  }, []);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
+
+    const formDataToSubmit = new FormData();
+
+    Object.keys(formData).forEach((key) => {
+      formDataToSubmit.append(key, formData[key]);
+    });
 
     // TODO: Integrate backend submission logic here, e.g.:
     // await fetch('/api/list-product', {
@@ -150,6 +180,38 @@ function Navbar() {
     //   },
     //   body: JSON.stringify(formData),
     // });
+    // empty the form data after submission
+    try {
+      const response = await axiosInstance.post(
+        "/products/product/",
+        formDataToSubmit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response.data);
+      setFormData({
+        product_name: "",
+        product_price: "",
+        product_description: "",
+        product_location: "",
+        product_image: "",
+        product_condition: "",
+        product_brand: "",
+        product_category: "",
+        product_promotion: "",
+        product_sub_category: "",
+      });
+      setSelectedCategory("");
+      setSelectedSubcategory("");
+      setOpenSell(false);
+    } catch (error) {
+      console.log(error);
+      setOpenSell(false);
+    }
   };
 
   return (
@@ -157,9 +219,13 @@ function Navbar() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link className="mr-6 ml-6 flex items-center space-x-2" href="/">
-            <span className="hidden text-xl font-bold sm:inline-block">
-              Beeyi Yo
-            </span>
+            <Image
+              src={img}
+              alt="beeyi_yo image"
+              width={50}
+              height={50}
+              className="rounded-sm"
+            />
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {/* <Link
@@ -286,7 +352,7 @@ function Navbar() {
             </form>
           </div>
           <nav className="flex items-center space-x-2">
-            <Dialog>
+            <Dialog open={openSell} onOpenChange={setOpenSell}>
               <DialogTrigger
                 asChild
                 onClick={() => !user && router.push("/signin")}
@@ -309,13 +375,18 @@ function Navbar() {
                       Fill out the details to list your product for sale.
                     </DialogDescription>
                   </DialogHeader>
-                  <form className="grid gap-4 py-4" onSubmit={handleFormSubmit}>
+                  <form
+                    className="grid gap-4 py-4"
+                    encType="multipart/form-data"
+                    onSubmit={handleFormSubmit}
+                  >
                     <div className="grid gap-2">
                       <Label htmlFor="product_name">Product Name</Label>
                       <Input
                         id="product_name"
                         placeholder="Enter product name"
                         onChange={handleChange}
+                        value={formData.product_name}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -324,11 +395,13 @@ function Navbar() {
                         id="product_description"
                         placeholder="Describe your product"
                         onChange={handleChange}
+                        value={formData.product_description}
                       />
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="product_category">Category</Label>
                       <Select
+                        value={selectedCategory}
                         onValueChange={(value) => {
                           setSelectedCategory(value);
                           setSelectedSubcategory("");
@@ -339,7 +412,7 @@ function Navbar() {
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map((category) => (
+                          {data.map((category) => (
                             <SelectItem
                               key={category.name}
                               value={category.name}
@@ -357,22 +430,23 @@ function Navbar() {
                         </Label>
                         <Select
                           value={selectedSubcategory}
-                          onValueChange={(value) =>
+                          onValueChange={(value) => {
+                            setSelectedSubcategory(value);
                             setFormData({
                               ...formData,
                               product_sub_category: value,
-                            })
-                          }
+                            });
+                          }}
                         >
                           <SelectTrigger id="product_sub_category">
                             <SelectValue placeholder="Select a subcategory" />
                           </SelectTrigger>
                           <SelectContent>
-                            {categories
+                            {data
                               .find((cat) => cat.name === selectedCategory)
                               ?.subcategories.map((subcat) => (
-                                <SelectItem key={subcat} value={subcat}>
-                                  {subcat}
+                                <SelectItem key={subcat.id} value={subcat.name}>
+                                  {subcat.name}
                                 </SelectItem>
                               ))}
                           </SelectContent>
@@ -386,6 +460,7 @@ function Navbar() {
                         type="number"
                         placeholder="Enter price"
                         onChange={handleChange}
+                        value={formData.product_price}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -402,12 +477,9 @@ function Navbar() {
                           <SelectValue placeholder="Select a condition" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.name}
-                              value={category.name}
-                            >
-                              {category.name}
+                          {conditions.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -417,9 +489,10 @@ function Navbar() {
                       <Label htmlFor="product_brand">Brand</Label>
                       <Input
                         id="product_brand"
-                        type="number"
+                        type="text"
                         placeholder="Enter brand"
                         onChange={handleChange}
+                        value={formData.product_brand}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -429,6 +502,7 @@ function Navbar() {
                         type="text"
                         placeholder="Enter location"
                         onChange={handleChange}
+                        value={formData.product_location}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -438,6 +512,7 @@ function Navbar() {
                         onChange={handleChange}
                         type="file"
                         accept="image/*"
+                        value={formData.product_image}
                       />
                     </div>
                     <div className="grid gap-2">
@@ -492,7 +567,9 @@ function Navbar() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/shop">Shop</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>Team</DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/signin">Login</Link>
