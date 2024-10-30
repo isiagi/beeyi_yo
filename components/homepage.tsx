@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -22,12 +23,11 @@ import {
 } from "@/components/ui/accordion";
 import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { axiosInstance } from "@/lib/base";
+import useFetchData from "@/hooks/useFetchData";
 
 export function HomepageComponent() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [products, setProducts] = useState([]);
-  const [loadings, setLoading] = useState(false);
+  const [products, loading] = useFetchData();
 
   const categories = [
     {
@@ -90,19 +90,6 @@ export function HomepageComponent() {
     }, 5000); // Change slide every 5 seconds
 
     return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      const products = await axiosInstance.get("/products/product/");
-      console.log("zzzz", products.data);
-
-      setLoading(false);
-      setProducts(products.data);
-    };
-
-    fetchProducts();
   }, []);
 
   const Ugx = new Intl.NumberFormat("en-US", {
@@ -228,11 +215,11 @@ export function HomepageComponent() {
             <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-center mb-8">
               Featured Products
             </h2>
-            {loadings ? (
+            {loading ? (
               <Loading />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products?.map((product) => (
+                {products?.map((product: any) => (
                   <Link key={product.id} href={`/detail/${product.id}`}>
                     <Card
                       key={product}

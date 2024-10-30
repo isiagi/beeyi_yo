@@ -72,8 +72,8 @@ function Navbar() {
     product_category: "",
     product_promotion: "",
     product_sub_category: "",
-  });
-  const [data, setData] = useState([]);
+  } as any);
+  const [data, setData] = useState<any>([]);
 
   // const categories = [
   //   "Electronics",
@@ -139,9 +139,9 @@ function Navbar() {
     const { id, files, value } = e.target;
 
     if (id === "product_image" && files) {
-      setFormData((prev) => ({ ...prev, [id]: files[0] }));
+      setFormData((prev: any) => ({ ...prev, [id]: files[0] }));
     } else {
-      setFormData((prev) => ({ ...prev, [id]: value }));
+      setFormData((prev: any) => ({ ...prev, [id]: value }));
     }
   };
 
@@ -412,7 +412,7 @@ function Navbar() {
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {data.map((category) => (
+                          {data.map((category: any) => (
                             <SelectItem
                               key={category.name}
                               value={category.name}
@@ -443,8 +443,8 @@ function Navbar() {
                           </SelectTrigger>
                           <SelectContent>
                             {data
-                              .find((cat) => cat.name === selectedCategory)
-                              ?.subcategories.map((subcat) => (
+                              .find((cat: any) => cat.name === selectedCategory)
+                              ?.subcategories.map((subcat: any) => (
                                 <SelectItem key={subcat.id} value={subcat.name}>
                                   {subcat.name}
                                 </SelectItem>
