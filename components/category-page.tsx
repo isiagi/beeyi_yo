@@ -1,15 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  SlidersHorizontal,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,14 +22,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-// Mock data for products
+// Mock data for products with consistent ratings
 const products = Array(50)
   .fill(null)
   .map((_, i) => ({
     id: i + 1,
     name: `Product ${i + 1}`,
-    price: Math.floor(Math.random() * 100) + 10,
-    rating: (Math.random() * 5).toFixed(1),
+    price: 30 + i * 2,
+    rating: 4.5, // Fixed rating to avoid hydration errors
     category: [
       "Smartphones",
       "Laptops",
@@ -138,187 +130,136 @@ export function CategoryPageComponent() {
     setCurrentPage(1);
   };
 
+  const CollapsibleFilter = ({
+    title,
+    children,
+    defaultOpen = false,
+  }: {
+    title: string;
+    children: React.ReactNode;
+    defaultOpen?: boolean;
+  }) => {
+    const [isOpen, setIsOpen] = React.useState(defaultOpen);
+
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 font-semibold">
+          {title}
+          <span>{isOpen ? "-" : "+"}</span>
+        </CollapsibleTrigger>
+        <CollapsibleContent>{children}</CollapsibleContent>
+      </Collapsible>
+    );
+  };
+
   const CategoryFilters = () => (
     <div className="space-y-4">
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 font-semibold">
-          Subcategories
-          <>
-            {({ open }: any) =>
-              open ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )
-            }
-          </>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <ScrollArea className="h-[120px] pr-4">
-            {subcategories.map((subcategory) => (
-              <div key={subcategory} className="flex items-center">
-                <Checkbox
-                  id={`subcategory-${subcategory}`}
-                  checked={selectedSubcategories.includes(subcategory)}
-                  onCheckedChange={() => handleSubcategoryChange(subcategory)}
-                />
-                <Label
-                  htmlFor={`subcategory-${subcategory}`}
-                  className="ml-2 flex-grow py-2"
-                >
-                  {subcategory}
-                </Label>
-              </div>
-            ))}
-          </ScrollArea>
-        </CollapsibleContent>
-      </Collapsible>
+      <CollapsibleFilter title="Subcategories" defaultOpen={true}>
+        <ScrollArea className="h-[120px] pr-4">
+          {subcategories.map((subcategory) => (
+            <div key={subcategory} className="flex items-center">
+              <Checkbox
+                id={`subcategory-${subcategory}`}
+                checked={selectedSubcategories.includes(subcategory)}
+                onCheckedChange={() => handleSubcategoryChange(subcategory)}
+              />
+              <Label
+                htmlFor={`subcategory-${subcategory}`}
+                className="ml-2 flex-grow py-2"
+              >
+                {subcategory}
+              </Label>
+            </div>
+          ))}
+        </ScrollArea>
+      </CollapsibleFilter>
 
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 font-semibold">
-          Location
-          <>
-            {({ open }: any) =>
-              open ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )
-            }
-          </>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <ScrollArea className="h-[120px] pr-4">
-            <RadioGroup
-              value={selectedLocation}
-              onValueChange={setSelectedLocation}
-            >
-              {locations.map((location) => (
-                <div key={location} className="flex items-center">
-                  <RadioGroupItem
-                    value={location}
-                    id={`location-${location}`}
-                  />
-                  <Label
-                    htmlFor={`location-${location}`}
-                    className="ml-2 flex-grow py-2"
-                  >
-                    {location}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </ScrollArea>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 font-semibold">
-          Price Range
-          <>
-            {({ open }: any) =>
-              open ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )
-            }
-          </>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
+      <CollapsibleFilter title="Location">
+        <ScrollArea className="h-[120px] pr-4">
           <RadioGroup
-            value={selectedPriceRange}
-            onValueChange={setSelectedPriceRange}
+            value={selectedLocation}
+            onValueChange={setSelectedLocation}
+            className="space-y-0"
           >
-            {priceRanges.map((range) => (
-              <div key={range.label} className="flex items-center">
-                <RadioGroupItem
-                  value={`${range.min}-${range.max}`}
-                  id={`price-${range.label}`}
-                />
+            {locations.map((location) => (
+              <div key={location} className="flex items-center">
+                <RadioGroupItem value={location} id={`location-${location}`} />
                 <Label
-                  htmlFor={`price-${range.label}`}
+                  htmlFor={`location-${location}`}
                   className="ml-2 flex-grow py-2"
                 >
-                  {range.label}
+                  {location}
                 </Label>
               </div>
             ))}
           </RadioGroup>
-        </CollapsibleContent>
-      </Collapsible>
+        </ScrollArea>
+      </CollapsibleFilter>
 
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 font-semibold">
-          Brand
-          <>
-            {({ open }: any) =>
-              open ? (
-                <ChevronUp className="h-4 w-4 text-red-600" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )
-            }
-          </>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <ScrollArea className="h-[120px] pr-4">
-            {brands.map((brand) => (
-              <div key={brand} className="flex items-center">
-                <Checkbox
-                  id={`brand-${brand}`}
-                  checked={selectedBrands.includes(brand)}
-                  onCheckedChange={() => handleBrandChange(brand)}
+      <CollapsibleFilter title="Price Range">
+        <RadioGroup
+          value={selectedPriceRange}
+          onValueChange={setSelectedPriceRange}
+          className="space-y-0"
+        >
+          {priceRanges.map((range) => (
+            <div key={range.label} className="flex items-center">
+              <RadioGroupItem
+                value={`${range.min}-${range.max}`}
+                id={`price-${range.label}`}
+              />
+              <Label
+                htmlFor={`price-${range.label}`}
+                className="ml-2 flex-grow py-2"
+              >
+                {range.label}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </CollapsibleFilter>
+
+      <CollapsibleFilter title="Brand">
+        <ScrollArea className="h-[120px] pr-4">
+          {brands.map((brand) => (
+            <div key={brand} className="flex items-center">
+              <Checkbox
+                id={`brand-${brand}`}
+                checked={selectedBrands.includes(brand)}
+                onCheckedChange={() => handleBrandChange(brand)}
+              />
+              <Label htmlFor={`brand-${brand}`} className="ml-2 flex-grow py-2">
+                {brand}
+              </Label>
+            </div>
+          ))}
+        </ScrollArea>
+      </CollapsibleFilter>
+
+      <CollapsibleFilter title="Condition">
+        <ScrollArea className="h-[120px] pr-4">
+          <RadioGroup
+            value={selectedCondition}
+            onValueChange={setSelectedCondition}
+            className="space-y-0"
+          >
+            {conditions.map((condition) => (
+              <div key={condition} className="flex items-center">
+                <RadioGroupItem
+                  value={condition}
+                  id={`condition-${condition}`}
                 />
                 <Label
-                  htmlFor={`brand-${brand}`}
+                  htmlFor={`condition-${condition}`}
                   className="ml-2 flex-grow py-2"
                 >
-                  {brand}
+                  {condition}
                 </Label>
               </div>
             ))}
-          </ScrollArea>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 font-semibold">
-          Condition
-          <>
-            {({ open }: any) =>
-              open ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )
-            }
-          </>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <ScrollArea className="h-[120px] pr-4">
-            <RadioGroup
-              value={selectedCondition}
-              onValueChange={setSelectedCondition}
-            >
-              {conditions.map((condition) => (
-                <div key={condition} className="flex items-center">
-                  <RadioGroupItem
-                    value={condition}
-                    id={`condition-${condition}`}
-                  />
-                  <Label
-                    htmlFor={`condition-${condition}`}
-                    className="ml-2 flex-grow py-2"
-                  >
-                    {condition}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </ScrollArea>
-        </CollapsibleContent>
-      </Collapsible>
+          </RadioGroup>
+        </ScrollArea>
+      </CollapsibleFilter>
 
       <div className="text-center font-semibold">
         Click below to submit filter
@@ -385,7 +326,7 @@ export function CategoryPageComponent() {
                   <CardContent className="p-4">
                     <div className="aspect-square relative mb-4">
                       <img
-                        src={`https://images.unsplash.com/photo-1601992342430-9dbef88d85fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fGJhZ3N8ZW58MHx8MHx8fDA%3D`}
+                        src={`/placeholder.svg?height=300&width=300&text=Product+${product.id}`}
                         alt={product.name}
                         className="object-cover w-full h-full rounded-md"
                       />
@@ -398,6 +339,9 @@ export function CategoryPageComponent() {
                       ${product.price.toFixed(2)}
                     </p>
                   </CardContent>
+                  <CardFooter className="p-4">
+                    <Button className="w-full">Add to Cart</Button>
+                  </CardFooter>
                 </Card>
               ))}
           </div>
