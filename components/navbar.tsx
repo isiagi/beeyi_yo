@@ -44,7 +44,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  // DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
@@ -564,13 +564,15 @@ function Navbar() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="mr-5">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/shop">Shop</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Team</DropdownMenuItem>
+                {/* <DropdownMenuItem>Team</DropdownMenuItem> */}
                 <DropdownMenuItem asChild>
                   <Link href="/signin">Login</Link>
                 </DropdownMenuItem>
