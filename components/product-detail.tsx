@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Star, Phone, MessageCircle } from "lucide-react";
+import { Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,39 +12,67 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import useFetchData from "@/hooks/useFetchData";
+import { useEffect, useState } from "react";
 
-export function ProductDetailComponent() {
+export function ProductDetailComponent({ id }: any) {
   const images = [
     "https://images.unsplash.com/file-1719664968387-83d5a3f4d758image?w=416&dpr=2&auto=format&fit=crop&q=60",
     "https://images.unsplash.com/photo-1527385352018-3c26dd6c3916?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
   ];
+  const [product, setProduct] = useState<any>(null);
+
+  const [products, loading] = useFetchData();
+
+  useEffect(() => {
+    console.log("Fetched products:", products);
+    const foundProduct = products?.find(
+      (product: any) => product.id === Number(id)
+    );
+    setProduct(foundProduct);
+  }, [products, id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!product) {
+    return <div>Product not found.</div>;
+  }
+
+  console.log(product, "product");
+
+  const Ugx = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "UGX",
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-4 md:gap-8">
         {/* Product Image Carousel */}
-        <Carousel className="w-full max-w-xs mx-auto md:max-w-md">
+        <Carousel className="w-full md:h-[400px] max-w-xs mx-auto md:max-w-md">
           <CarouselContent>
             {images.map((src, index) => (
               <CarouselItem key={index}>
                 <div className="aspect-square relative">
                   <img
-                    src={src}
+                    src={product.product_image}
                     alt={`Product Image ${index + 1}`}
-                    className="object-cover rounded-lg"
+                    className="object-cover h-full rounded-lg"
                   />
                 </div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
         </Carousel>
 
         {/* Product Details */}
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">Ergonomic Office Chair</h1>
-          <div className="flex items-center gap-2">
+          <h1 className="text-3xl font-bold">{product.product_name}</h1>
+          {/* <div className="flex items-center gap-2">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -55,14 +84,11 @@ export function ProductDetailComponent() {
               ))}
             </div>
             <span className="text-sm text-gray-600">(128 reviews)</span>
-          </div>
-          <p className="text-xl font-bold">$299.99</p>
-          <p className="text-gray-600">
-            Experience ultimate comfort with our ergonomic office chair.
-            Designed to support your body during long work hours, this chair
-            features adjustable lumbar support, breathable mesh back, and
-            customizable armrests.
+          </div> */}
+          <p className="text-xl font-bold">
+            {Ugx.format(product.product_price)}
           </p>
+          <p className="text-gray-600">{product.product_description}</p>
 
           {/* Seller Details */}
           <Card className="mt-6">

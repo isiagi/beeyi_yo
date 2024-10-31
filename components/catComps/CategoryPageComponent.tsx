@@ -23,8 +23,6 @@ import fetchSubCategory from "@/lib/fetchSubCategory";
 const CategoryPageComponent = () => {
   const [products, loading] = useFetchData();
 
-  console.log(products, "products");
-
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [category, setCategory] = useState([]);
