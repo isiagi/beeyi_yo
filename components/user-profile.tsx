@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,8 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Badge } from "@/components/ui/badge";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +29,9 @@ import {
   Package,
   Settings,
   Star,
-  Eye,
+  // Eye,
 } from "lucide-react";
+import { axiosInstance } from "@/lib/base";
 
 export default function UserProfile() {
   const [user, setUser] = useState<any>({
@@ -72,6 +73,24 @@ export default function UserProfile() {
     ],
   });
 
+  const [testUser, setTestUser] = useState<any>([]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axiosInstance.get("/auth/2");
+
+        setTestUser(response.data);
+
+        console.log(response.data, "json");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchUser();
+  }, [user]);
+
   const [editedUser, setEditedUser] = useState({
     ...user,
     password: "",
@@ -90,7 +109,7 @@ export default function UserProfile() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editedUser.password !== editedUser.confirmPassword) {
       setPasswordError("Passwords do not match");
@@ -104,6 +123,13 @@ export default function UserProfile() {
       confirmPassword: undefined,
     });
     setIsEditModalOpen(false);
+    try {
+      const response = await axiosInstance.patch(`/auth/2`, editedUser);
+
+      console.log(response.data, "jsonzzzz");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -121,8 +147,8 @@ export default function UserProfile() {
               </AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
-              <CardTitle className="text-2xl">{user.name}</CardTitle>
-              <CardDescription>@{user.username}</CardDescription>
+              <CardTitle className="text-2xl">{`${testUser?.first_name} ${testUser?.last_name}`}</CardTitle>
+              <CardDescription>@{testUser?.username}</CardDescription>
               <div className="flex items-center justify-center sm:justify-start mt-2">
                 <CalendarDays className="w-4 h-4 mr-2" />
                 <span className="text-sm text-muted-foreground">
@@ -169,7 +195,7 @@ export default function UserProfile() {
             </Card>
           </div>
 
-          <Tabs defaultValue="listings" className="w-full">
+          {/* <Tabs defaultValue="listings" className="w-full">
             <TabsList>
               <TabsTrigger value="listings">Recent Listings</TabsTrigger>
               <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -208,7 +234,7 @@ export default function UserProfile() {
                 Reviews will be displayed here.
               </p>
             </TabsContent>
-          </Tabs>
+          </Tabs> */}
 
           <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-2 sm:space-y-0 sm:space-x-2">
             <Button variant="outline" className="w-full sm:w-auto">
@@ -223,7 +249,7 @@ export default function UserProfile() {
                   <Settings className="mr-2 h-4 w-4" /> Edit Profile
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[525px] overflow-y-scroll max-h-screen">
                 <DialogHeader>
                   <DialogTitle>Edit Profile</DialogTitle>
                 </DialogHeader>
