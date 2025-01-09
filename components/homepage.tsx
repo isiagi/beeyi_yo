@@ -228,7 +228,7 @@ export function HomepageComponent() {
                       <CardContent className="p-4">
                         <div className="aspect-square relative mb-4">
                           <img
-                            src={product.product_image}
+                            src={product.image_url}
                             alt={"rtyutr"}
                             className="object-cover w-full h-full rounded-md"
                           />

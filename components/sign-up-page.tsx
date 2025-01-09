@@ -27,9 +27,12 @@ const signUp = async (userData: {
 }): Promise<{ success: boolean; message: string }> => {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  const response = await axiosInstance.post("/auth/signup/", userData);
 
-  return response.data;
+  try {
+    const response = await axiosInstance.post("/auth/signup/", userData);
+  } catch (error) {
+    console.log(error);
+  }
 
   // Mock sign-up logic
   // if (userData.email.includes("@") && userData.password.length >= 8) {

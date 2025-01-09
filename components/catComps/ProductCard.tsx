@@ -12,7 +12,7 @@ const ProductCard = ({ product }: any) => (
     <CardContent className="p-4">
       <div className="aspect-square relative mb-4">
         <img
-          src={product.product_image}
+          src={product.image_url}
           alt={product.product_name}
           className="object-cover w-full h-full rounded-md"
         />

@@ -53,6 +53,7 @@ import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/base";
 import Image from "next/image";
 import img from "@/app/beeyi.jpeg";
+import { log } from "console";
 
 function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -137,6 +138,8 @@ function Navbar() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
   ) => {
     const { id, files, value } = e.target;
+
+    console.log(id, files, value, "files");
 
     if (id === "product_image" && files) {
       setFormData((prev: any) => ({ ...prev, [id]: files[0] }));
@@ -512,7 +515,7 @@ function Navbar() {
                         onChange={handleChange}
                         type="file"
                         accept="image/*"
-                        value={formData.product_image}
+                        // value={formData.product_image}
                       />
                     </div>
                     <div className="grid gap-2">

@@ -57,7 +57,7 @@ export function ProductDetailComponent({ id }: any) {
               <CarouselItem key={index}>
                 <div className="aspect-square relative">
                   <img
-                    src={product.product_image}
+                    src={product.image_url}
                     alt={`Product Image ${index + 1}`}
                     className="object-cover h-full rounded-lg"
                   />
