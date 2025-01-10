@@ -1,11 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-
-import { Card, CardContent } from "@/components/ui/card";
-
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sheet,
   SheetContent,
@@ -14,28 +21,71 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Menu,
+  PlusCircle,
+  Search,
+  ShoppingCart,
+  Smartphone,
+  Shirt,
+  Home,
+  Dumbbell,
+  BookOpen,
+  Sparkles,
+  Gamepad,
+} from "lucide-react";
 import Link from "next/link";
-import useFetchData from "@/hooks/useFetchData";
+import { useRouter } from "next/navigation";
 
 export function HomepageComponent() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [products, loading] = useFetchData();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedPromotion, setSelectedPromotion] = useState("no_promo");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const categories = [
     {
       name: "Electronics",
-      subcategories: ["Smartphones", "Laptops", "Tablets", "Accessories"],
+      icon: Smartphone,
+      subcategories: ["Phones", "Computers", "Tablets", "Accessories"],
     },
     {
       name: "Fashion",
+      icon: Shirt,
       subcategories: [
         "Men's Clothing",
         "Women's Clothing",
@@ -45,11 +95,45 @@ export function HomepageComponent() {
     },
     {
       name: "Home & Garden",
+      icon: Home,
       subcategories: ["Furniture", "Decor", "Kitchen", "Outdoor"],
     },
     {
       name: "Sports",
+      icon: Dumbbell,
       subcategories: ["Equipment", "Clothing", "Footwear", "Accessories"],
+    },
+    {
+      name: "Books",
+      icon: BookOpen,
+      subcategories: ["Fiction", "Non-fiction", "Educational", "Children's"],
+    },
+    {
+      name: "Beauty",
+      icon: Sparkles,
+      subcategories: ["Skincare", "Makeup", "Haircare", "Fragrances"],
+    },
+    {
+      name: "Toys",
+      icon: Gamepad,
+      subcategories: [
+        "Action Figures",
+        "Board Games",
+        "Outdoor Toys",
+        "Educational Toys",
+      ],
+    },
+  ];
+
+  const promotionOptions = [
+    { id: "no_promo", label: "No promo", price: "Free", duration: "" },
+    { id: "top_7", label: "TOP", price: "USh 10,000", duration: "7 days" },
+    { id: "top_30", label: "TOP", price: "USh 30,000", duration: "30 days" },
+    {
+      id: "boost_premium",
+      label: "Boost Premium promo",
+      price: "USh 137,699",
+      duration: "1 month (28 days)",
     },
   ];
 
@@ -57,20 +141,17 @@ export function HomepageComponent() {
     {
       title: "New Arrivals",
       description: "Check out the latest products",
-      image:
-        "https://images.unsplash.com/photo-1695527081756-6e15ed27c6a3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
+      image: "/placeholder.svg?height=400&width=600&text=New+Arrivals",
     },
     {
       title: "Best Sellers",
       description: "Our most popular items",
-      image:
-        "https://plus.unsplash.com/premium_photo-1673481767533-60901d9146ad?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjV8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
+      image: "/placeholder.svg?height=400&width=600&text=Best+Sellers",
     },
     {
       title: "Special Offers",
       description: "Limited time deals",
-      image:
-        "https://images.unsplash.com/photo-1601992342430-9dbef88d85fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
+      image: "/placeholder.svg?height=400&width=600&text=Special+Offers",
     },
   ];
 
@@ -92,24 +173,276 @@ export function HomepageComponent() {
     return () => clearInterval(timer);
   }, []);
 
-  const Ugx = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "UGX",
-  });
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Searching for:", searchQuery);
+    // Implement actual search logic here
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setSelectedSubcategory("");
+  };
+
+  const scrollCategories = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200; // Adjust this value to change scroll distance
+      scrollContainerRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <div className="mr-4 hidden md:flex items-center flex-1">
+            <Link className="mr-6 flex items-center space-x-2" href="/">
+              <ShoppingCart className="h-6 w-6" />
+              <span className="hidden font-bold sm:inline-block">
+                BuySellMarket
+              </span>
+            </Link>
+            <div className="relative flex items-center flex-1 max-w-[50%]">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-0 z-10"
+                onClick={() => scrollCategories("left")}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div
+                ref={scrollContainerRef}
+                className="flex items-center space-x-2 overflow-x-auto scrollbar-hide px-8"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {categories.map((category, index) => (
+                  <DropdownMenu key={index}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex items-center space-x-1 px-2"
+                      >
+                        <category.icon className="h-4 w-4" />
+                        <span className="truncate max-w-[100px]">
+                          {category.name}
+                        </span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {category.subcategories.map((subcategory, subIndex) => (
+                        <DropdownMenuItem
+                          key={subIndex}
+                          onSelect={() =>
+                            router.push(
+                              `/category/${category.name.toLowerCase()}/${subcategory.toLowerCase()}`
+                            )
+                          }
+                        >
+                          {subcategory}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ))}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 z-10"
+                onClick={() => scrollCategories("right")}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <Sheet open={isNavOpen} onOpenChange={setIsNavOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="mr-2 px-0 text-base hover:bg-transparent focus:ring-0 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col space-y-4 mt-4">
+                <Accordion type="single" collapsible className="w-full">
+                  {categories.map((category, index) => (
+                    <AccordionItem key={index} value={`item-${index}`}>
+                      <AccordionTrigger className="flex items-center">
+                        <category.icon className="h-4 w-4 mr-2" />
+                        {category.name}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="grid gap-2">
+                          {category.subcategories.map(
+                            (subcategory, subIndex) => (
+                              <Button
+                                key={subIndex}
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => setIsNavOpen(false)}
+                              >
+                                {subcategory}
+                              </Button>
+                            )
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </nav>
+            </SheetContent>
+          </Sheet>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <nav className="flex items-center space-x-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Quick Sell
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>List Your Product</DialogTitle>
+                    <DialogDescription>
+                      Fill out the details to list your product for sale.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-name">Product Name</Label>
+                      <Input
+                        id="product-name"
+                        placeholder="Enter product name"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-description">Description</Label>
+                      <Textarea
+                        id="product-description"
+                        placeholder="Describe your product"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-category">Category</Label>
+                      <Select onValueChange={handleCategoryChange}>
+                        <SelectTrigger id="product-category">
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem
+                              key={category.name}
+                              value={category.name}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {selectedCategory && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="product-subcategory">Subcategory</Label>
+                        <Select
+                          value={selectedSubcategory}
+                          onValueChange={setSelectedSubcategory}
+                        >
+                          <SelectTrigger id="product-subcategory">
+                            <SelectValue placeholder="Select a subcategory" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories
+                              .find((cat) => cat.name === selectedCategory)
+                              ?.subcategories.map((subcat) => (
+                                <SelectItem key={subcat} value={subcat}>
+                                  {subcat}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-price">Price</Label>
+                      <Input
+                        id="product-price"
+                        type="number"
+                        placeholder="Enter price"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-image">Product Image</Label>
+                      <Input id="product-image" type="file" accept="image/*" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Promote your ad</Label>
+                      <RadioGroup
+                        value={selectedPromotion}
+                        onValueChange={setSelectedPromotion}
+                      >
+                        {promotionOptions.map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem value={option.id} id={option.id} />
+                            <Label htmlFor={option.id} className="flex-1">
+                              <span className="font-medium">
+                                {option.label}
+                              </span>
+                              {option.duration && (
+                                <span className="ml-2 text-sm text-gray-500">
+                                  ({option.duration})
+                                </span>
+                              )}
+                            </Label>
+                            <span className="text-sm font-medium">
+                              {option.price}
+                            </span>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    </div>
+                    <Button type="submit">List Product</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+              <Button variant="ghost" size="icon">
+                <ShoppingCart className="h-4 w-4" />
+                <span className="sr-only">Cart</span>
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Avatar className="h-6 w-6">
+                  <AvatarImage alt="User" src="/placeholder-user.jpg" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+                <span className="sr-only">User</span>
+              </Button>
+            </nav>
+          </div>
+        </div>
+      </header>
       <main className="flex-1">
-        <section className="w-full py-12 md:py-12 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold leading-loose tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                    Tunda ku Beeyi <span className="text-yellow-600">Yo</span>,
-                  </h1>
-                  <h1 className="text-3xl mt-0 md:mt-auto md:pt-3 font-bold leading-loose tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                    Gula ku Beeyi <span className="text-yellow-600">Yo</span>
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                    Buy, Sell, and Connect on BuySellMarket
                   </h1>
                   <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
                     Your one-stop marketplace for buying unique items and
@@ -117,49 +450,18 @@ export function HomepageComponent() {
                   </p>
                 </div>
                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
-                  <Button size="lg">Start Shopping</Button>
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="lg">
-                        Browse Categories
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left">
-                      <SheetHeader>
-                        <SheetTitle>Categories</SheetTitle>
-                        <SheetDescription>
-                          Explore our wide range of product categories
-                        </SheetDescription>
-                      </SheetHeader>
-                      <Accordion type="single" collapsible className="w-full">
-                        {categories.map((category, index) => (
-                          <AccordionItem key={index} value={`item-${index}`}>
-                            <AccordionTrigger>{category.name}</AccordionTrigger>
-                            <AccordionContent>
-                              <div className="grid gap-2">
-                                {category.subcategories.map(
-                                  (subcategory, subIndex) => (
-                                    <Link
-                                      href={`/category/${category.name}}`}
-                                      key={subIndex}
-                                    >
-                                      <Button
-                                        key={subIndex}
-                                        variant="ghost"
-                                        className="w-full justify-start"
-                                      >
-                                        {subcategory}
-                                      </Button>
-                                    </Link>
-                                  )
-                                )}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </SheetContent>
-                  </Sheet>
+                  <form onSubmit={handleSearch} className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="search"
+                        placeholder="Search products..."
+                        className="pl-8 w-full"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                  </form>
                 </div>
               </div>
               <div className="flex items-center justify-center">
@@ -215,39 +517,29 @@ export function HomepageComponent() {
             <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-center mb-8">
               Featured Products
             </h2>
-            {loading ? (
-              <Loading />
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products?.map((product: any) => (
-                  <Link key={product.id} href={`/detail/${product.id}`}>
-                    <Card
-                      key={product}
-                      className="flex flex-col justify-between"
-                    >
-                      <CardContent className="p-4">
-                        <div className="aspect-square relative mb-4">
-                          <img
-                            src={product.image_url}
-                            alt={"rtyutr"}
-                            className="object-cover w-full h-full rounded-md"
-                          />
-                        </div>
-                        <h2 className="text-lg font-semibold">
-                          {product.product_name}
-                        </h2>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Rating: 5/5
-                        </p>
-                        <p className="text-lg font-bold">
-                          {Ugx.format(product.product_price)}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((product) => (
+                <Card key={product}>
+                  <CardHeader>
+                    <img
+                      src={`/placeholder.svg?height=200&width=200&text=Product ${product}`}
+                      alt={`Product ${product}`}
+                      className="w-full h-48 object-cover"
+                    />
+                  </CardHeader>
+                  <CardContent>
+                    <CardTitle>Product {product}</CardTitle>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <span className="font-bold">$99.99</span>
+                    <Button variant="outline">Add to Cart</Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
       </main>
@@ -272,13 +564,5 @@ export function HomepageComponent() {
         </div>
       </footer>
     </div>
-  );
-}
-
-function Loading() {
-  return (
-    <>
-      <h1>Loading...</h1>
-    </>
   );
 }
