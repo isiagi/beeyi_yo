@@ -94,12 +94,12 @@ export function ProductDetailComponent({ id }: any) {
               <CardTitle>Seller Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-semibold">John&apos;s Office Supplies</p>
+              <p className="font-semibold">{product.seller_username}</p>
               <p className="text-sm text-gray-600">
-                Member since: January 2020
+                Contact: {product.contact_phone}
               </p>
               <p className="text-sm text-gray-600">
-                Rating: 4.8/5 (203 reviews)
+                Email: {product.contact_email}
               </p>
               <div className="mt-4 space-y-2">
                 <Button className="w-full" variant="outline">
@@ -116,18 +116,13 @@ export function ProductDetailComponent({ id }: any) {
           <Tabs defaultValue="description" className="mt-8">
             <TabsList>
               <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="specifications">Specifications</TabsTrigger>
-              <TabsTrigger value="shipping">Shipping</TabsTrigger>
+              {/* <TabsTrigger value="specifications">Specifications</TabsTrigger>
+              <TabsTrigger value="shipping">Shipping</TabsTrigger> */}
             </TabsList>
             <TabsContent value="description">
-              <p>
-                Our ergonomic office chair is designed to provide maximum
-                comfort and support during long work hours. It features a
-                breathable mesh back, adjustable lumbar support, and
-                customizable armrests to fit your body perfectly.
-              </p>
+              <p>{product.description}</p>
             </TabsContent>
-            <TabsContent value="specifications">
+            {/* <TabsContent value="specifications">
               <ul className="list-disc list-inside">
                 <li>Weight capacity: 300 lbs</li>
                 <li>Seat height: 17&quot; - 21&quot; (adjustable)</li>
@@ -135,14 +130,14 @@ export function ProductDetailComponent({ id }: any) {
                 <li>Back material: Breathable mesh</li>
                 <li>Base: 5-star with smooth-rolling casters</li>
               </ul>
-            </TabsContent>
-            <TabsContent value="shipping">
+            </TabsContent> */}
+            {/* <TabsContent value="shipping">
               <p>
                 Free shipping on orders over $500. Standard delivery takes 3-5
                 business days. Express shipping options are available at
                 checkout.
               </p>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>
