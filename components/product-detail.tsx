@@ -71,7 +71,7 @@ export function ProductDetailComponent({ id }: any) {
 
         {/* Product Details */}
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">{product.product_name}</h1>
+          <h1 className="text-3xl font-bold">{product.title}</h1>
           {/* <div className="flex items-center gap-2">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
@@ -85,10 +85,8 @@ export function ProductDetailComponent({ id }: any) {
             </div>
             <span className="text-sm text-gray-600">(128 reviews)</span>
           </div> */}
-          <p className="text-xl font-bold">
-            {Ugx.format(product.product_price)}
-          </p>
-          <p className="text-gray-600">{product.product_description}</p>
+          <p className="text-xl font-bold">{Ugx.format(product.price)}</p>
+          <p className="text-gray-600">{product.description}</p>
 
           {/* Seller Details */}
           <Card className="mt-6">

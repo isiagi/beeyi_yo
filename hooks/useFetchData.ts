@@ -26,7 +26,7 @@ export default function useFetchData() {
         // Set fetched data in Zustand store
         setFetchedData(response.data); // Use Zustand to set fetched data
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.log("Error fetching products:", error);
       } finally {
         setLoading(false);
       }

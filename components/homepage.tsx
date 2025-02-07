@@ -66,6 +66,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import useFetchData from "@/hooks/useFetchData";
 
 export function HomepageComponent() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -165,6 +166,8 @@ export function HomepageComponent() {
     );
   };
 
+  const [products, loading] = useFetchData();
+
   useEffect(() => {
     const timer = setInterval(() => {
       nextSlide();
@@ -193,6 +196,11 @@ export function HomepageComponent() {
       });
     }
   };
+
+  const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "UGX",
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -304,122 +312,14 @@ export function HomepageComponent() {
               </nav>
             </SheetContent>
           </Sheet>
-          <div className="flex flex-1 items-center justify-end space-x-2">
+          {/* <div className="flex flex-1 items-center justify-end space-x-2">
             <nav className="flex items-center space-x-2">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Quick Sell
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>List Your Product</DialogTitle>
-                    <DialogDescription>
-                      Fill out the details to list your product for sale.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="product-name">Product Name</Label>
-                      <Input
-                        id="product-name"
-                        placeholder="Enter product name"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="product-description">Description</Label>
-                      <Textarea
-                        id="product-description"
-                        placeholder="Describe your product"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="product-category">Category</Label>
-                      <Select onValueChange={handleCategoryChange}>
-                        <SelectTrigger id="product-category">
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.name}
-                              value={category.name}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {selectedCategory && (
-                      <div className="grid gap-2">
-                        <Label htmlFor="product-subcategory">Subcategory</Label>
-                        <Select
-                          value={selectedSubcategory}
-                          onValueChange={setSelectedSubcategory}
-                        >
-                          <SelectTrigger id="product-subcategory">
-                            <SelectValue placeholder="Select a subcategory" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories
-                              .find((cat) => cat.name === selectedCategory)
-                              ?.subcategories.map((subcat) => (
-                                <SelectItem key={subcat} value={subcat}>
-                                  {subcat}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                    <div className="grid gap-2">
-                      <Label htmlFor="product-price">Price</Label>
-                      <Input
-                        id="product-price"
-                        type="number"
-                        placeholder="Enter price"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="product-image">Product Image</Label>
-                      <Input id="product-image" type="file" accept="image/*" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label>Promote your ad</Label>
-                      <RadioGroup
-                        value={selectedPromotion}
-                        onValueChange={setSelectedPromotion}
-                      >
-                        {promotionOptions.map((option) => (
-                          <div
-                            key={option.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <RadioGroupItem value={option.id} id={option.id} />
-                            <Label htmlFor={option.id} className="flex-1">
-                              <span className="font-medium">
-                                {option.label}
-                              </span>
-                              {option.duration && (
-                                <span className="ml-2 text-sm text-gray-500">
-                                  ({option.duration})
-                                </span>
-                              )}
-                            </Label>
-                            <span className="text-sm font-medium">
-                              {option.price}
-                            </span>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    <Button type="submit">List Product</Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <Link href="/sell">
+                <Button variant="outline" size="sm" className="flex">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Quick Sell
+                </Button>
+              </Link>
               <Button variant="ghost" size="icon">
                 <ShoppingCart className="h-4 w-4" />
                 <span className="sr-only">Cart</span>
@@ -432,7 +332,7 @@ export function HomepageComponent() {
                 <span className="sr-only">User</span>
               </Button>
             </nav>
-          </div>
+          </div> */}
         </div>
       </header>
       <main className="flex-1">
@@ -518,7 +418,7 @@ export function HomepageComponent() {
               Featured Products
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((product) => (
+              {products?.map((product) => (
                 <Card key={product}>
                   <CardHeader>
                     <img
@@ -528,14 +428,24 @@ export function HomepageComponent() {
                     />
                   </CardHeader>
                   <CardContent>
-                    <CardTitle>Product {product}</CardTitle>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    <CardTitle>{product.title}</CardTitle>
+                    <p className="text-sm text-gray-500 my-2 dark:text-gray-400">
+                      {product.description}
+                    </p>
+                    <p className="text-sm text-gray-900 dark:text-gray-400 font-bold">
+                      Seller:{" "}
+                      <span className="font-normal text-gray-700 dark:text-gray-300">
+                        {product.seller_username}
+                      </span>
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-between">
-                    <span className="font-bold">$99.99</span>
-                    <Button variant="outline">Add to Cart</Button>
+                    <span className="font-bold">
+                      {currencyFormatter.format(product.price)}
+                    </span>
+                    <Link href={`/detail/${product.id}`}>
+                      <Button variant="outline">Add to Cart</Button>
+                    </Link>
                   </CardFooter>
                 </Card>
               ))}
