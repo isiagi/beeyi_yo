@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -36,6 +37,7 @@ export default function CategoryPage() {
   const params = useParams();
   const { id: category, subcategory } = params;
   const router = useRouter();
+  const [products, setProducts] = useState<any[]>([]);
 
   console.log(category, subcategory);
 
@@ -50,6 +52,8 @@ export default function CategoryPage() {
           `/products/product/?category=${subcategory}`
         );
         console.log(response.data, "test");
+
+        setProducts(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -71,6 +75,19 @@ export default function CategoryPage() {
     { id: 3, name: "Item 3", price: 79.99 },
     { id: 4, name: "Item 4", price: 199.99 },
   ];
+
+  const getProductImage = (product: any) => {
+    // Check if product has images array and it's not empty
+    if (
+      product?.images &&
+      product.images.length > 0 &&
+      product.images[0].image
+    ) {
+      return product.images[0].image;
+    }
+    // Return a placeholder image URL if no product image is available
+    return "/placeholder.svg?height=200&width=200&text=No+Image";
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -104,20 +121,20 @@ export default function CategoryPage() {
         <div className="w-full md:w-3/4">
           <h2 className="text-xl font-semibold mb-4">{subcategory} Items</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subcategoryItems.map((item) => (
+            {products?.map((item) => (
               <Card key={item.id}>
                 <CardHeader>
-                  <CardTitle>{item.name}</CardTitle>
+                  <CardTitle>{item.product_name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <img
-                    src={`https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bWlzc2lvbiUyMGFuZCUyMGdvYWx8ZW58MHx8MHx8fDA%3D`}
+                    src={getProductImage(item)}
                     alt={item.name}
                     className="w-full h-48 object-cover rounded-md"
                   />
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <span className="font-bold">${item.price.toFixed(2)}</span>
+                  <span className="font-bold">{item.product_price} UGX</span>
                   <Button variant="outline">Add to Cart</Button>
                 </CardFooter>
               </Card>
