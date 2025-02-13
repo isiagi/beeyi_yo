@@ -79,7 +79,7 @@ export function LoginPageComponent() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-[url('https://images.unsplash.com/photo-1642543348745-03b1219733d9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YnV5JTIwc2VsbHxlbnwwfHwwfHx8MA%3D%3D')] bg-cover bg-center bg-no-repeat">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login</CardTitle>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { axiosInstance } from "@/lib/base";
 
 // This would typically come from an API or database
 const categories = [
@@ -37,6 +38,25 @@ export default function CategoryPage() {
   const router = useRouter();
 
   console.log(category, subcategory);
+
+  // This would typically come from an API based on the selected category
+  useEffect(() => {
+    // if (category && subcategory) {
+    //   router.push(`/category/${category}/${subcategory}`);
+    // }
+    const categoryProducts = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/products/product/?category=${subcategory}`
+        );
+        console.log(response.data, "test");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    categoryProducts();
+  }, [category, subcategory]);
 
   const [selectedSubcategory, setSelectedSubcategory] = useState(subcategory);
 

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/carousel";
 import useFetchData from "@/hooks/useFetchData";
 import { useEffect, useState } from "react";
+import { axiosInstance } from "@/lib/base";
 
 export function ProductDetailComponent({ id }: any) {
   const images = [
@@ -25,11 +26,17 @@ export function ProductDetailComponent({ id }: any) {
   const [products, loading] = useFetchData();
 
   useEffect(() => {
-    console.log("Fetched products:", products);
-    const foundProduct = products?.find(
-      (product: any) => product.id === Number(id)
-    );
-    setProduct(foundProduct);
+    // Find the product with the matching ID from server
+    const foundProduct = async () => {
+      try {
+        const response = await axiosInstance.get(`/products/product/${id}`);
+        setProduct(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    foundProduct();
   }, [products, id]);
 
   if (loading) {
@@ -53,11 +60,11 @@ export function ProductDetailComponent({ id }: any) {
         {/* Product Image Carousel */}
         <Carousel className="w-full md:h-[400px] max-w-xs mx-auto md:max-w-md">
           <CarouselContent>
-            {images.map((src, index) => (
+            {product.images.map((src, index) => (
               <CarouselItem key={index}>
                 <div className="aspect-square relative">
                   <img
-                    src={product.image_url}
+                    src={src.image}
                     alt={`Product Image ${index + 1}`}
                     className="object-cover h-full rounded-lg"
                   />
@@ -71,7 +78,7 @@ export function ProductDetailComponent({ id }: any) {
 
         {/* Product Details */}
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-bold">{product.title}</h1>
+          <h1 className="text-3xl font-bold">{product.product_name}</h1>
           {/* <div className="flex items-center gap-2">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
@@ -85,8 +92,10 @@ export function ProductDetailComponent({ id }: any) {
             </div>
             <span className="text-sm text-gray-600">(128 reviews)</span>
           </div> */}
-          <p className="text-xl font-bold">{Ugx.format(product.price)}</p>
-          <p className="text-gray-600">{product.description}</p>
+          <p className="text-xl font-bold">
+            {Ugx.format(product.product_price)}
+          </p>
+          <p className="text-gray-600">{product.product_description}</p>
 
           {/* Seller Details */}
           <Card className="mt-6">
@@ -120,7 +129,7 @@ export function ProductDetailComponent({ id }: any) {
               <TabsTrigger value="shipping">Shipping</TabsTrigger> */}
             </TabsList>
             <TabsContent value="description">
-              <p>{product.description}</p>
+              <p>{product.product_description}</p>
             </TabsContent>
             {/* <TabsContent value="specifications">
               <ul className="list-disc list-inside">

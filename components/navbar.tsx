@@ -54,6 +54,7 @@ import { axiosInstance } from "@/lib/base";
 import Image from "next/image";
 import img from "@/app/beeyi.jpeg";
 import { log } from "console";
+import authInstance from "@/lib/authAxios";
 
 function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,6 +76,8 @@ function Navbar() {
     product_sub_category: "",
   } as any);
   const [data, setData] = useState<any>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   // const categories = [
   //   "Electronics",
@@ -165,27 +168,46 @@ function Navbar() {
     fetchCategorys();
   }, []);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+
+      // Create preview URLs for the new files
+      const newPreviewUrls = newFiles.map((file) => URL.createObjectURL(file));
+      setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => {
+      // Revoke the URL to prevent memory leaks
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
 
     const formDataToSubmit = new FormData();
 
+    // Append all form fields
     Object.keys(formData).forEach((key) => {
-      formDataToSubmit.append(key, formData[key]);
+      if (key !== "product_image") {
+        formDataToSubmit.append(key, formData[key]);
+      }
     });
 
-    // TODO: Integrate backend submission logic here, e.g.:
-    // await fetch('/api/list-product', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(formData),
-    // });
-    // empty the form data after submission
+    // Append multiple images
+    selectedFiles.forEach((file, index) => {
+      formDataToSubmit.append(`product_images`, file);
+    });
+
     try {
-      const response = await axiosInstance.post(
+      const response = await authInstance.post(
         "/products/product/",
         formDataToSubmit,
         {
@@ -208,6 +230,8 @@ function Navbar() {
         product_promotion: "",
         product_sub_category: "",
       });
+      setSelectedFiles([]);
+      setPreviewUrls([]);
       setSelectedCategory("");
       setSelectedSubcategory("");
       setOpenSell(false);
@@ -371,7 +395,7 @@ function Navbar() {
                 </Button>
               </DialogTrigger>
               {user && (
-                <DialogContent className="sm:max-w-[525px] overflow-y-scroll max-h-screen">
+                <DialogContent className="sm:max-w-[800px] overflow-y-scroll max-h-screen">
                   <DialogHeader>
                     <DialogTitle>List Your Product</DialogTitle>
                     <DialogDescription>
@@ -383,15 +407,130 @@ function Navbar() {
                     encType="multipart/form-data"
                     onSubmit={handleFormSubmit}
                   >
-                    <div className="grid gap-2">
-                      <Label htmlFor="product_name">Product Name</Label>
-                      <Input
-                        id="product_name"
-                        placeholder="Enter product name"
-                        onChange={handleChange}
-                        value={formData.product_name}
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="product_name">Product Name</Label>
+                        <Input
+                          id="product_name"
+                          placeholder="Enter product name"
+                          onChange={handleChange}
+                          value={formData.product_name}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="product_price">Price</Label>
+                        <Input
+                          id="product_price"
+                          type="number"
+                          placeholder="Enter price"
+                          onChange={handleChange}
+                          value={formData.product_price}
+                        />
+                      </div>
                     </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="product_category">Category</Label>
+                        <Select
+                          value={selectedCategory}
+                          onValueChange={(value) => {
+                            setSelectedCategory(value);
+                            setSelectedSubcategory("");
+                            setFormData({
+                              ...formData,
+                              product_category: value,
+                            });
+                          }}
+                        >
+                          <SelectTrigger id="product_category">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {data.map((category: any) => (
+                              <SelectItem
+                                key={category.name}
+                                value={category.name}
+                              >
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {selectedCategory && (
+                        <div className="grid gap-2">
+                          <Label htmlFor="product_sub_category">
+                            Subcategory
+                          </Label>
+                          <Select
+                            value={selectedSubcategory}
+                            onValueChange={(value) => {
+                              setSelectedSubcategory(value);
+                              setFormData({
+                                ...formData,
+                                product_sub_category: value,
+                              });
+                            }}
+                          >
+                            <SelectTrigger id="product_sub_category">
+                              <SelectValue placeholder="Select a subcategory" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {data
+                                .find(
+                                  (cat: any) => cat.name === selectedCategory
+                                )
+                                ?.subcategories.map((subcat: any) => (
+                                  <SelectItem
+                                    key={subcat.id}
+                                    value={subcat.name}
+                                  >
+                                    {subcat.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="product_condition">Condition</Label>
+                        <Select
+                          onValueChange={(value) => {
+                            setFormData({
+                              ...formData,
+                              product_condition: value,
+                            });
+                          }}
+                        >
+                          <SelectTrigger id="product_condition">
+                            <SelectValue placeholder="Select a condition" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {conditions.map((condition) => (
+                              <SelectItem key={condition} value={condition}>
+                                {condition}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="product_brand">Brand</Label>
+                        <Input
+                          id="product_brand"
+                          type="text"
+                          placeholder="Enter brand"
+                          onChange={handleChange}
+                          value={formData.product_brand}
+                        />
+                      </div>
+                    </div>
+
                     <div className="grid gap-2">
                       <Label htmlFor="product_description">Description</Label>
                       <Textarea
@@ -401,103 +540,7 @@ function Navbar() {
                         value={formData.product_description}
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="product_category">Category</Label>
-                      <Select
-                        value={selectedCategory}
-                        onValueChange={(value) => {
-                          setSelectedCategory(value);
-                          setSelectedSubcategory("");
-                          setFormData({ ...formData, product_category: value });
-                        }}
-                      >
-                        <SelectTrigger id="product_category">
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {data.map((category: any) => (
-                            <SelectItem
-                              key={category.name}
-                              value={category.name}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {selectedCategory && (
-                      <div className="grid gap-2">
-                        <Label htmlFor="product_sub_category">
-                          Subcategory
-                        </Label>
-                        <Select
-                          value={selectedSubcategory}
-                          onValueChange={(value) => {
-                            setSelectedSubcategory(value);
-                            setFormData({
-                              ...formData,
-                              product_sub_category: value,
-                            });
-                          }}
-                        >
-                          <SelectTrigger id="product_sub_category">
-                            <SelectValue placeholder="Select a subcategory" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {data
-                              .find((cat: any) => cat.name === selectedCategory)
-                              ?.subcategories.map((subcat: any) => (
-                                <SelectItem key={subcat.id} value={subcat.name}>
-                                  {subcat.name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                    <div className="grid gap-2">
-                      <Label htmlFor="product_price">Price</Label>
-                      <Input
-                        id="product_price"
-                        type="number"
-                        placeholder="Enter price"
-                        onChange={handleChange}
-                        value={formData.product_price}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="product_condition">Condition</Label>
-                      <Select
-                        onValueChange={(value) => {
-                          setFormData({
-                            ...formData,
-                            product_condition: value,
-                          });
-                        }}
-                      >
-                        <SelectTrigger id="product_condition">
-                          <SelectValue placeholder="Select a condition" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {conditions.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="product_brand">Brand</Label>
-                      <Input
-                        id="product_brand"
-                        type="text"
-                        placeholder="Enter brand"
-                        onChange={handleChange}
-                        value={formData.product_brand}
-                      />
-                    </div>
+
                     <div className="grid gap-2">
                       <Label htmlFor="product_location">Location</Label>
                       <Input
@@ -508,16 +551,36 @@ function Navbar() {
                         value={formData.product_location}
                       />
                     </div>
+
                     <div className="grid gap-2">
-                      <Label htmlFor="product_image">Product Image</Label>
+                      <Label>Product Images</Label>
                       <Input
                         id="product_image"
-                        onChange={handleChange}
+                        onChange={handleImageChange}
                         type="file"
                         accept="image/*"
-                        // value={formData.product_image}
+                        multiple
                       />
+                      <div className="grid grid-cols-4 gap-4 mt-2">
+                        {previewUrls.map((url, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={url}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center -mt-2 -mr-2"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+
                     <div className="grid gap-2">
                       <Label>Promote your ad</Label>
                       <RadioGroup
@@ -547,6 +610,7 @@ function Navbar() {
                         ))}
                       </RadioGroup>
                     </div>
+
                     <Button type="submit">List Product</Button>
                   </form>
                 </DialogContent>

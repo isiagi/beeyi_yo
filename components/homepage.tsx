@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -176,6 +177,19 @@ export function HomepageComponent() {
     return () => clearInterval(timer);
   }, []);
 
+  const getProductImage = (product: any) => {
+    // Check if product has images array and it's not empty
+    if (
+      product?.images &&
+      product.images.length > 0 &&
+      product.images[0].image
+    ) {
+      return product.images[0].image;
+    }
+    // Return a placeholder image URL if no product image is available
+    return "/placeholder.svg?height=200&width=200&text=No+Image";
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Searching for:", searchQuery);
@@ -204,16 +218,14 @@ export function HomepageComponent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 px-6 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <div className="mr-4 hidden md:flex items-center flex-1">
             <Link className="mr-6 flex items-center space-x-2" href="/">
               <ShoppingCart className="h-6 w-6" />
-              <span className="hidden font-bold sm:inline-block">
-                BuySellMarket
-              </span>
+              <span className="hidden font-bold sm:inline-block">Beyi Yo</span>
             </Link>
-            <div className="relative flex items-center flex-1 max-w-[50%]">
+            <div className="relative flex items-center flex-1 max-w-[70%]">
               <Button
                 variant="ghost"
                 size="icon"
@@ -342,7 +354,7 @@ export function HomepageComponent() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                    Buy, Sell, and Connect on BuySellMarket
+                    Buy, Sell, and Connect on Beyi Yo
                   </h1>
                   <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
                     Your one-stop marketplace for buying unique items and
@@ -418,30 +430,30 @@ export function HomepageComponent() {
               Featured Products
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products?.map((product) => (
+              {products?.map((product: any) => (
                 <Card key={product}>
                   <CardHeader>
                     <img
-                      src={`/placeholder.svg?height=200&width=200&text=Product ${product}`}
+                      src={getProductImage(product)}
                       alt={`Product ${product}`}
                       className="w-full h-48 object-cover"
                     />
                   </CardHeader>
                   <CardContent>
-                    <CardTitle>{product.title}</CardTitle>
+                    <CardTitle>{product.product_name}</CardTitle>
                     <p className="text-sm text-gray-500 my-2 dark:text-gray-400">
-                      {product.description}
+                      {product.product_description}
                     </p>
                     <p className="text-sm text-gray-900 dark:text-gray-400 font-bold">
                       Seller:{" "}
                       <span className="font-normal text-gray-700 dark:text-gray-300">
-                        {product.seller_username}
+                        {product.product_seller}
                       </span>
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <span className="font-bold">
-                      {currencyFormatter.format(product.price)}
+                      {currencyFormatter.format(product.product_price)}
                     </span>
                     <Link href={`/detail/${product.id}`}>
                       <Button variant="outline">Add to Cart</Button>
