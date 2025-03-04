@@ -53,7 +53,7 @@ import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/base";
 import Image from "next/image";
 import img from "@/app/beeyi.jpeg";
-import { log } from "console";
+
 import authInstance from "@/lib/authAxios";
 
 function Navbar() {
@@ -74,6 +74,7 @@ function Navbar() {
     product_category: "",
     product_promotion: "",
     product_sub_category: "",
+    contact_phone: "",
   } as any);
   const [data, setData] = useState<any>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -202,9 +203,12 @@ function Navbar() {
     });
 
     // Append multiple images
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     selectedFiles.forEach((file, index) => {
       formDataToSubmit.append(`product_images`, file);
     });
+
+    console.log(formDataToSubmit, "form data to submit");
 
     try {
       const response = await authInstance.post(
@@ -229,6 +233,7 @@ function Navbar() {
         product_category: "",
         product_promotion: "",
         product_sub_category: "",
+        product_contact: "",
       });
       setSelectedFiles([]);
       setPreviewUrls([]);
@@ -335,7 +340,7 @@ function Navbar() {
               <Accordion type="single" collapsible className="w-full">
                 {categories.map((category, index) => (
                   <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger>{category.name}</AccordionTrigger>
+                    <AccordionTrigger>{"hello"}</AccordionTrigger>
                     <AccordionContent>
                       <div className="grid gap-2">
                         {category.subcategories.map((subcategory, subIndex) => (
@@ -395,7 +400,7 @@ function Navbar() {
                 </Button>
               </DialogTrigger>
               {user && (
-                <DialogContent className="sm:max-w-[800px] overflow-y-scroll max-h-screen">
+                <DialogContent className="sm:max-w-[800px] z-50 overflow-y-scroll max-h-screen">
                   <DialogHeader>
                     <DialogTitle>List Your Product</DialogTitle>
                     <DialogDescription>
@@ -447,14 +452,18 @@ function Navbar() {
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent>
-                            {data.map((category: any) => (
-                              <SelectItem
-                                key={category.name}
-                                value={category.name}
-                              >
-                                {category.name}
-                              </SelectItem>
-                            ))}
+                            {data.map((category: any) => {
+                              if (category.level === 0) {
+                                return (
+                                  <SelectItem
+                                    key={category.id}
+                                    value={category.name}
+                                  >
+                                    {category.name}
+                                  </SelectItem>
+                                );
+                              }
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
@@ -541,15 +550,27 @@ function Navbar() {
                       />
                     </div>
 
-                    <div className="grid gap-2">
-                      <Label htmlFor="product_location">Location</Label>
-                      <Input
-                        id="product_location"
-                        type="text"
-                        placeholder="Enter location"
-                        onChange={handleChange}
-                        value={formData.product_location}
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="product_location">Location</Label>
+                        <Input
+                          id="product_location"
+                          type="text"
+                          placeholder="Enter location"
+                          onChange={handleChange}
+                          value={formData.product_location}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="contact_phone">Contact</Label>
+                        <Input
+                          id="contact_phone"
+                          type="text"
+                          placeholder="Enter contact"
+                          onChange={handleChange}
+                          value={formData.product_contact}
+                        />
+                      </div>
                     </div>
 
                     <div className="grid gap-2">

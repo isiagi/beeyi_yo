@@ -3,7 +3,7 @@ import axios from "axios";
 const createAuthInstance = () => {
   // Create the axios instance
   const instance = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL: "https://beeyi-be.onrender.com/api",
     headers: {
       "Content-Type": "multipart/form-data",
     },

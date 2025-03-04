@@ -4,8 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+
 import {
   Card,
   CardContent,
@@ -13,37 +12,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,7 +38,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  PlusCircle,
+  // PlusCircle,
   Search,
   ShoppingCart,
   Smartphone,
@@ -73,9 +57,9 @@ export function HomepageComponent() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  const [selectedPromotion, setSelectedPromotion] = useState("no_promo");
+  // const [selectedCategory, setSelectedCategory] = useState("");
+  // const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  // const [selectedPromotion, setSelectedPromotion] = useState("no_promo");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -127,17 +111,17 @@ export function HomepageComponent() {
     },
   ];
 
-  const promotionOptions = [
-    { id: "no_promo", label: "No promo", price: "Free", duration: "" },
-    { id: "top_7", label: "TOP", price: "USh 10,000", duration: "7 days" },
-    { id: "top_30", label: "TOP", price: "USh 30,000", duration: "30 days" },
-    {
-      id: "boost_premium",
-      label: "Boost Premium promo",
-      price: "USh 137,699",
-      duration: "1 month (28 days)",
-    },
-  ];
+  // const promotionOptions = [
+  //   { id: "no_promo", label: "No promo", price: "Free", duration: "" },
+  //   { id: "top_7", label: "TOP", price: "USh 10,000", duration: "7 days" },
+  //   { id: "top_30", label: "TOP", price: "USh 30,000", duration: "30 days" },
+  //   {
+  //     id: "boost_premium",
+  //     label: "Boost Premium promo",
+  //     price: "USh 137,699",
+  //     duration: "1 month (28 days)",
+  //   },
+  // ];
 
   const carouselItems = [
     {
@@ -167,6 +151,7 @@ export function HomepageComponent() {
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [products, loading] = useFetchData();
 
   useEffect(() => {
@@ -196,10 +181,10 @@ export function HomepageComponent() {
     // Implement actual search logic here
   };
 
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
-    setSelectedSubcategory("");
-  };
+  // const handleCategoryChange = (value: string) => {
+  //   setSelectedCategory(value);
+  //   setSelectedSubcategory("");
+  // };
 
   const scrollCategories = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -348,27 +333,29 @@ export function HomepageComponent() {
         </div>
       </header>
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-24 lg:py-20 xl:py-20 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-              <div className="flex flex-col justify-center space-y-4">
+              <div className="flex flex-col justify-center ">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                    Buy, Sell, and Connect on Beyi Yo
+                    Buy, Sell, and Connect on{" "}
+                    <span className="text-blue-900">Beyi</span>{" "}
+                    <span className="text-yellow-500">Yo</span>
                   </h1>
-                  <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
+                  <p className="max-w-[600px] text-gray-500 my-6 md:text-md dark:text-gray-400">
                     Your one-stop marketplace for buying unique items and
                     selling your own products.
                   </p>
                 </div>
-                <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <div className="flex flex-col space-y-2 mt-5 sm:flex-row sm:space-x-4 sm:space-y-0">
                   <form onSubmit={handleSearch} className="flex-1">
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="search"
                         placeholder="Search products..."
-                        className="pl-8 w-full"
+                        className="pl-8 w-[70%]"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
@@ -465,26 +452,6 @@ export function HomepageComponent() {
           </div>
         </section>
       </main>
-      <footer className="w-full border-t py-6 bg-gray-100 dark:bg-gray-800">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-              <ShoppingCart className="h-6 w-6" />
-              <p className="text-center text-sm leading-loose md:text-left">
-                © 2023 BuySellMarket. All rights reserved.
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <Link className="text-sm underline" href="/terms">
-                Terms
-              </Link>
-              <Link className="text-sm underline" href="/privacy">
-                Privacy
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

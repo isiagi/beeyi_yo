@@ -17,10 +17,10 @@ import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/base";
 
 export function ProductDetailComponent({ id }: any) {
-  const images = [
-    "https://images.unsplash.com/file-1719664968387-83d5a3f4d758image?w=416&dpr=2&auto=format&fit=crop&q=60",
-    "https://images.unsplash.com/photo-1527385352018-3c26dd6c3916?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
-  ];
+  // const images = [
+  //   "https://images.unsplash.com/file-1719664968387-83d5a3f4d758image?w=416&dpr=2&auto=format&fit=crop&q=60",
+  //   "https://images.unsplash.com/photo-1527385352018-3c26dd6c3916?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJhZ3N8ZW58MHx8MHx8fDA%3D",
+  // ];
   const [product, setProduct] = useState<any>(null);
 
   const [products, loading] = useFetchData();
@@ -60,7 +60,7 @@ export function ProductDetailComponent({ id }: any) {
         {/* Product Image Carousel */}
         <Carousel className="w-full md:h-[400px] max-w-xs mx-auto md:max-w-md">
           <CarouselContent>
-            {product.images.map((src, index) => (
+            {product.images.map((src: any, index: any) => (
               <CarouselItem key={index}>
                 <div className="aspect-square relative">
                   <img

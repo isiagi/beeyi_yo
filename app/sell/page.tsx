@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -19,7 +20,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Stepper, Step } from "@/components/ui/stepper";
 
@@ -46,7 +46,7 @@ export default function SellPage() {
   const [subcategory, setSubcategory] = useState("");
   const [listingType, setListingType] = useState("free");
   const [formData, setFormData] = useState({});
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<any>([]);
   const router = useRouter();
 
   const handleCategoryChange = (value: string) => {
@@ -164,7 +164,11 @@ export default function SellPage() {
         </div>
         <div>
           <Label htmlFor="contact">Contact Information</Label>
-          <Input id="contact" name="contact" onChange={handleInputChange} />
+          <Input
+            id="contact"
+            name="contact_phone"
+            onChange={handleInputChange}
+          />
         </div>
       </>
     );
@@ -232,7 +236,7 @@ export default function SellPage() {
       <Label htmlFor="images">Upload Images</Label>
       <Input id="images" type="file" multiple onChange={handleImageUpload} />
       <div className="grid grid-cols-3 gap-4">
-        {images.map((image, index) => (
+        {images.map((image: any, index: any) => (
           <img
             key={index}
             src={URL.createObjectURL(image)}

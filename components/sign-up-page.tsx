@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -24,11 +25,12 @@ const signUp = async (userData: {
   last_name: string;
   email: string;
   password: string;
-}): Promise<{ success: boolean; message: string }> => {
+}): Promise<any> => {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const response = await axiosInstance.post("/auth/signup/", userData);
   } catch (error) {
     console.log(error);

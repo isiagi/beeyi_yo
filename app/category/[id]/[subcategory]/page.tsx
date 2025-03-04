@@ -69,12 +69,12 @@ export default function CategoryPage() {
   );
 
   // This would typically come from an API based on the selected subcategory
-  const subcategoryItems = [
-    { id: 1, name: "Item 1", price: 99.99 },
-    { id: 2, name: "Item 2", price: 149.99 },
-    { id: 3, name: "Item 3", price: 79.99 },
-    { id: 4, name: "Item 4", price: 199.99 },
-  ];
+  // const subcategoryItems = [
+  //   { id: 1, name: "Item 1", price: 99.99 },
+  //   { id: 2, name: "Item 2", price: 149.99 },
+  //   { id: 3, name: "Item 3", price: 79.99 },
+  //   { id: 4, name: "Item 4", price: 199.99 },
+  // ];
 
   const getProductImage = (product: any) => {
     // Check if product has images array and it's not empty
