@@ -38,6 +38,7 @@ export default function CategoryPage() {
   const { id: category, subcategory } = params;
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   console.log(category, subcategory);
 
@@ -48,6 +49,7 @@ export default function CategoryPage() {
     // }
     const categoryProducts = async () => {
       try {
+        setLoading(true);
         const response = await axiosInstance.get(
           `/products/product/?category=${subcategory}`
         );
@@ -56,16 +58,25 @@ export default function CategoryPage() {
         setProducts(response.data);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
 
     categoryProducts();
   }, [category, subcategory]);
 
-  const [selectedSubcategory, setSelectedSubcategory] = useState(subcategory);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(
+    cleanParams(subcategory)
+  );
+
+  // clean params to remove men%27s%20clothing special character
+  function cleanParams(param: any) {
+    return decodeURIComponent(param.replace(/\+/g, " "));
+  }
 
   const currentCategory = categories.find(
-    (c) => c.name.toLowerCase() === category
+    (c) => c.name.toLowerCase() === cleanParams(category).toLowerCase()
   );
 
   // This would typically come from an API based on the selected subcategory
@@ -92,11 +103,11 @@ export default function CategoryPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">
-        {category} - {subcategory}
+        {category} - {cleanParams(subcategory)}
       </h1>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-1/4">
-          <h2 className="text-xl font-semibold mb-4">Subcategories</h2>
+          {/* <h2 className="text-xl font-semibold mb-4">Subcategories</h2> */}
           <ul className="space-y-2">
             {currentCategory?.subcategories.map((sub, index) => (
               <li key={index} className="flex items-center space-x-2">
@@ -119,27 +130,33 @@ export default function CategoryPage() {
           </ul>
         </div>
         <div className="w-full md:w-3/4">
-          <h2 className="text-xl font-semibold mb-4">{subcategory} Items</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products?.map((item) => (
-              <Card key={item.id}>
-                <CardHeader>
-                  <CardTitle>{item.product_name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <img
-                    src={getProductImage(item)}
-                    alt={item.name}
-                    className="w-full h-48 object-cover rounded-md"
-                  />
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <span className="font-bold">{item.product_price} UGX</span>
-                  <Button variant="outline">Add to Cart</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          <h2 className="text-xl font-semibold mb-4">
+            {cleanParams(subcategory)} Items
+          </h2>
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products?.map((item) => (
+                <Card key={item.id}>
+                  <CardHeader>
+                    <CardTitle>{item.product_name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <img
+                      src={getProductImage(item)}
+                      alt={item.name}
+                      className="w-full h-48 object-cover rounded-md"
+                    />
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <span className="font-bold">{item.product_price} UGX</span>
+                    <Button variant="outline">View Item</Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

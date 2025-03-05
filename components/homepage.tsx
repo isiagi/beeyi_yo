@@ -127,17 +127,20 @@ export function HomepageComponent() {
     {
       title: "New Arrivals",
       description: "Check out the latest products",
-      image: "/placeholder.svg?height=400&width=600&text=New+Arrivals",
+      image:
+        "https://images.unsplash.com/photo-1560209617-059c0bd661ba?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHBob25lc3xlbnwwfHwwfHx8MA%3D%3D",
     },
     {
       title: "Best Sellers",
       description: "Our most popular items",
-      image: "/placeholder.svg?height=400&width=600&text=Best+Sellers",
+      image:
+        "https://images.unsplash.com/photo-1547949003-9792a18a2601?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFnc3xlbnwwfHwwfHx8MA%3D%3D",
     },
     {
       title: "Special Offers",
       description: "Limited time deals",
-      image: "/placeholder.svg?height=400&width=600&text=Special+Offers",
+      image:
+        "https://media.istockphoto.com/id/2029879472/photo/a-pair-of-modern-running-sneakers-isolated-on-white-background.webp?a=1&b=1&s=612x612&w=0&k=20&c=nEPDT4JPT7Iezxua_9WGc2dM5NtsyhVCo5eIqnWTCGA=",
     },
   ];
 
@@ -416,39 +419,45 @@ export function HomepageComponent() {
             <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-center mb-8">
               Featured Products
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products?.map((product: any) => (
-                <Card key={product}>
-                  <CardHeader>
-                    <img
-                      src={getProductImage(product)}
-                      alt={`Product ${product}`}
-                      className="w-full h-48 object-cover"
-                    />
-                  </CardHeader>
-                  <CardContent>
-                    <CardTitle>{product.product_name}</CardTitle>
-                    <p className="text-sm text-gray-500 my-2 dark:text-gray-400">
-                      {product.product_description}
-                    </p>
-                    <p className="text-sm text-gray-900 dark:text-gray-400 font-bold">
-                      Seller:{" "}
-                      <span className="font-normal text-gray-700 dark:text-gray-300">
-                        {product.product_seller}
+            {loading ? (
+              <div className="flex justify-center items-center h-[300px]">
+                <p>Loading...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {products?.map((product: any) => (
+                  <Card key={product}>
+                    <CardHeader>
+                      <img
+                        src={getProductImage(product)}
+                        alt={`Product ${product}`}
+                        className="w-full h-48 object-cover"
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <CardTitle>{product.product_name}</CardTitle>
+                      <p className="text-sm text-gray-500 my-2 dark:text-gray-400">
+                        {product.product_description}
+                      </p>
+                      <p className="text-sm text-gray-900 dark:text-gray-400 font-bold">
+                        Seller:{" "}
+                        <span className="font-normal text-gray-700 dark:text-gray-300">
+                          {product.product_seller}
+                        </span>
+                      </p>
+                    </CardContent>
+                    <CardFooter className="flex justify-between">
+                      <span className="font-bold">
+                        {currencyFormatter.format(product.product_price)}
                       </span>
-                    </p>
-                  </CardContent>
-                  <CardFooter className="flex justify-between">
-                    <span className="font-bold">
-                      {currencyFormatter.format(product.product_price)}
-                    </span>
-                    <Link href={`/detail/${product.id}`}>
-                      <Button variant="outline">Add to Cart</Button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                      <Link href={`/detail/${product.id}`}>
+                        <Button variant="outline">View Item</Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
