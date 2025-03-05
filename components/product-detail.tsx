@@ -48,7 +48,11 @@ export function ProductDetailComponent({ id }: any) {
   }
 
   if (!product) {
-    return <div>Product not found.</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Still Loading.
+      </div>
+    );
   }
 
   console.log(product, "product");

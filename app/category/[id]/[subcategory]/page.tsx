@@ -124,6 +124,11 @@ export default function CategoryPage() {
     return "/placeholder.svg?height=200&width=200&text=No+Image";
   };
 
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "UGX",
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">
@@ -180,7 +185,9 @@ export default function CategoryPage() {
                     />
                   </CardContent>
                   <CardFooter className="flex justify-between">
-                    <span className="font-bold">{item.product_price} UGX</span>
+                    <span className="font-bold">
+                      {formatter.format(item.product_price)}
+                    </span>
                     <Button variant="outline" asChild>
                       <Link href={`/detail/${item.id}`}>View Item</Link>
                     </Button>

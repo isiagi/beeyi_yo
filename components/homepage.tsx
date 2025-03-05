@@ -204,6 +204,10 @@ export function HomepageComponent() {
     currency: "UGX",
   });
 
+  // const handleHomeClick = () => {
+  //   router.push("/category");
+  // };
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50 px-6 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -298,7 +302,11 @@ export function HomepageComponent() {
                                 key={subIndex}
                                 variant="ghost"
                                 className="w-full justify-start"
-                                onClick={() => setIsNavOpen(false)}
+                                onClick={() =>
+                                  router.push(
+                                    `/category/${category.name.toLowerCase()}/${subcategory.toLowerCase()}`
+                                  )
+                                }
                               >
                                 {subcategory}
                               </Button>
