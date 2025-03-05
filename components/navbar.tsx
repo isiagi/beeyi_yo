@@ -45,7 +45,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   // DropdownMenuLabel,
-  DropdownMenuSeparator,
+  // DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import useAuthStore from "@/lib/authstore";
@@ -130,6 +130,8 @@ function Navbar() {
   const conditions = ["new", "used", "refurbished"];
 
   const user = useAuthStore((state: any) => state.user);
+  const initializeUser = useAuthStore((state: any) => state.initializeUser);
+  const clearUser = useAuthStore((state: any) => state.clearUser);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -137,6 +139,10 @@ function Navbar() {
     console.log("Searching for:", searchQuery);
     // Implement actual search logic here
   };
+
+  useEffect(() => {
+    initializeUser();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
@@ -243,6 +249,19 @@ function Navbar() {
     } catch (error) {
       console.log(error);
       setOpenSell(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    alert("Are you sure you want to logout?");
+    try {
+      await authInstance.post("/auth/logout/");
+      clearUser();
+      alert("Logout successful");
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+      alert("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -651,20 +670,31 @@ function Navbar() {
                   <span className="sr-only">User</span>
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="mr-5">
-                {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/shop">Shop</Link>
-                </DropdownMenuItem>
-                {/* <DropdownMenuItem>Team</DropdownMenuItem> */}
-                <DropdownMenuItem asChild>
-                  <Link href="/signin">Login</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              {user ? (
+                <DropdownMenuContent className="mr-5">
+                  {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+                  {/* <DropdownMenuSeparator /> */}
+                  {/* <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem> */}
+                  <DropdownMenuItem asChild>
+                    <Link href="/shop">Shop</Link>
+                  </DropdownMenuItem>
+                  {/* <DropdownMenuItem>Team</DropdownMenuItem> */}
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <p>Log Out</p>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              ) : (
+                <DropdownMenuContent className="mr-5">
+                  <DropdownMenuItem asChild>
+                    <Link href="/signin">Login</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/signup">Register</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              )}
             </DropdownMenu>
           </nav>
         </div>
