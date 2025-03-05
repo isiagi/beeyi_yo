@@ -22,17 +22,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Pencil,
-  Trash2,
-  PlusCircle,
-  DollarSign,
-  User,
-  Phone,
-  Mail,
-} from "lucide-react";
-import useFetchData from "@/hooks/useFetchData";
+import { Trash2, PlusCircle, User, Phone, Mail } from "lucide-react";
+
 import deleteData from "@/lib/deleteData";
+import { axiosInstance } from "@/lib/base";
 
 type Item = {
   id: number;
@@ -48,30 +41,6 @@ type Owner = {
   email: string;
 };
 
-const initialItems: Item[] = [
-  {
-    id: 1,
-    name: "Vintage Camera",
-    price: 150,
-    description: "A beautiful vintage camera in excellent condition.",
-    imageUrl: "/placeholder.svg?height=200&width=200",
-  },
-  {
-    id: 2,
-    name: "Mountain Bike",
-    price: 300,
-    description: "High-quality mountain bike, perfect for trails.",
-    imageUrl: "/placeholder.svg?height=200&width=200",
-  },
-  {
-    id: 3,
-    name: "Leather Jacket",
-    price: 80,
-    description: "Classic leather jacket, size M, barely worn.",
-    imageUrl: "/placeholder.svg?height=200&width=200",
-  },
-];
-
 const owner: Owner = {
   name: "John Doe",
   phone: "+1 (555) 123-4567",
@@ -79,8 +48,8 @@ const owner: Owner = {
 };
 
 export function Page() {
-  const [items, setItems] = useState<Item[] | any>(initialItems);
-  const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [items, setItems] = useState<Item[] | any>();
+  const [editingItem, setEditingItem] = useState<Item | any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Item | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -90,12 +59,33 @@ export function Page() {
     description: "",
     imageUrl: "/placeholder.svg?height=200&width=200",
   });
+  const [loading, setLoading] = useState(false);
 
-  const [products, loading] = useFetchData();
+  // Fetch products from API
 
   useEffect(() => {
-    setItems(products);
-  }, [products]);
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(
+          "/products/product/my_products/",
+          {
+            headers: {
+              Authorization: `Token ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        setItems(response.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleDelete = async (id: number) => {
     try {
@@ -108,9 +98,11 @@ export function Page() {
     }
   };
 
-  const handleEdit = (item: Item) => {
-    setEditingItem({ ...item });
-  };
+  // const handleEdit = (item: Item) => {
+  //   console.log(item, "editItem");
+
+  //   setEditingItem({ ...item });
+  // };
 
   const handleSave = (editedItem: Item) => {
     setItems(
@@ -131,6 +123,11 @@ export function Page() {
     setIsAddDialogOpen(false);
   };
 
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "UGX",
+  });
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <main className="container mx-auto">
@@ -145,13 +142,13 @@ export function Page() {
             ) : (
               <CardContent>
                 <div className="grid gap-4">
-                  {items.map((item: any) => (
+                  {items?.map((item: any) => (
                     <Card key={item.id}>
                       <CardContent className="p-4">
                         <div className="flex flex-col md:flex-row gap-4">
                           <div className="w-full md:w-1/3">
                             <Image
-                              src={item.product_image}
+                              src={item?.images}
                               alt={item.name}
                               width={200}
                               height={200}
@@ -167,21 +164,20 @@ export function Page() {
                                 {item.product_description}
                               </p>
                               <p className="text-lg font-semibold mt-2 flex items-center">
-                                <DollarSign className="h-5 w-5 mr-1" />
-                                {item.product_price}
+                                {formatter.format(item.product_price)}
                               </p>
                             </div>
                             <div className="flex space-x-2 mt-4">
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button
+                                  {/* <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleEdit(item)}
                                   >
                                     <Pencil className="h-4 w-4 mr-2" />
                                     Edit
-                                  </Button>
+                                  </Button> */}
                                 </DialogTrigger>
                                 <DialogContent>
                                   <DialogHeader>
@@ -197,7 +193,7 @@ export function Page() {
                                       </Label>
                                       <Input
                                         id="edit-name"
-                                        value={editingItem?.name}
+                                        value={editingItem?.product_name}
                                         onChange={(e) =>
                                           setEditingItem({
                                             ...editingItem!,
@@ -217,7 +213,7 @@ export function Page() {
                                       <Input
                                         id="edit-price"
                                         type="number"
-                                        value={editingItem?.price}
+                                        value={editingItem?.product_price}
                                         onChange={(e) =>
                                           setEditingItem({
                                             ...editingItem!,
@@ -236,7 +232,7 @@ export function Page() {
                                       </Label>
                                       <Textarea
                                         id="edit-description"
-                                        value={editingItem?.description}
+                                        value={editingItem?.product_description}
                                         onChange={(e) =>
                                           setEditingItem({
                                             ...editingItem!,

@@ -40,7 +40,11 @@ export function ProductDetailComponent({ id }: any) {
   }, [products, id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   if (!product) {

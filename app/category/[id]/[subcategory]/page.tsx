@@ -14,24 +14,25 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { axiosInstance } from "@/lib/base";
+import Link from "next/link";
 
 // This would typically come from an API or database
-const categories = [
-  {
-    name: "Electronics",
-    subcategories: ["Phones", "Computers", "Tablets", "Accessories"],
-  },
-  {
-    name: "Fashion",
-    subcategories: [
-      "Men's Clothing",
-      "Women's Clothing",
-      "Shoes",
-      "Accessories",
-    ],
-  },
-  // ... other categories
-];
+// const categories = [
+//   {
+//     name: "Electronics",
+//     subcategories: ["Phones", "Computers", "Tablets", "Accessories"],
+//   },
+//   {
+//     name: "Fashion",
+//     subcategories: [
+//       "Men's Clothing",
+//       "Women's Clothing",
+//       "Shoes",
+//       "Accessories",
+//     ],
+//   },
+//   // ... other categories
+// ];
 
 export default function CategoryPage() {
   const params = useParams();
@@ -39,8 +40,31 @@ export default function CategoryPage() {
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [subs, setSubs] = useState<any[]>([]);
+  const [subsLoading, setSubsLoading] = useState(false);
 
   console.log(category, subcategory);
+
+  // Fetch sub categories from the API
+  useEffect(() => {
+    // Fetch subcategories for the selected category
+    const fetchSubcategories = async () => {
+      try {
+        setSubsLoading(true);
+        const response = await axiosInstance.get(
+          `/categories/categories/subcategories/${cleanParams(category)}/`
+        );
+        console.log(response.data, "subs");
+        setSubs(response.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setSubsLoading(false);
+      }
+    };
+
+    fetchSubcategories();
+  }, []);
 
   // This would typically come from an API based on the selected category
   useEffect(() => {
@@ -75,9 +99,9 @@ export default function CategoryPage() {
     return decodeURIComponent(param.replace(/\+/g, " "));
   }
 
-  const currentCategory = categories.find(
-    (c) => c.name.toLowerCase() === cleanParams(category).toLowerCase()
-  );
+  // const currentCategory = categories.find(
+  //   (c) => c.name.toLowerCase() === cleanParams(category).toLowerCase()
+  // );
 
   // This would typically come from an API based on the selected subcategory
   // const subcategoryItems = [
@@ -103,30 +127,36 @@ export default function CategoryPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">
-        {category} - {cleanParams(subcategory)}
+        {cleanParams(category)} - {cleanParams(subcategory)}
       </h1>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-1/4">
           {/* <h2 className="text-xl font-semibold mb-4">Subcategories</h2> */}
           <ul className="space-y-2">
-            {currentCategory?.subcategories.map((sub, index) => (
-              <li key={index} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`subcategory-${index}`}
-                  checked={selectedSubcategory === sub.toLowerCase()}
-                  onCheckedChange={() => {
-                    setSelectedSubcategory(sub.toLowerCase());
-                    router.push(`/category/${category}/${sub.toLowerCase()}`);
-                  }}
-                />
-                <label
-                  htmlFor={`subcategory-${index}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {sub}
-                </label>
-              </li>
-            ))}
+            {subsLoading ? (
+              <p>Loading subcategories...</p>
+            ) : (
+              subs?.map((sub, index) => (
+                <li key={index} className="flex items-center gap-4 pt-3">
+                  <Checkbox
+                    id={`subcategory-${index}`}
+                    checked={selectedSubcategory === sub.name.toLowerCase()}
+                    onCheckedChange={() => {
+                      setSelectedSubcategory(sub.name.toLowerCase());
+                      router.push(
+                        `/category/${category}/${sub.name.toLowerCase()}`
+                      );
+                    }}
+                  />
+                  <label
+                    htmlFor={`subcategory-${index}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {sub.name}
+                  </label>
+                </li>
+              ))
+            )}
           </ul>
         </div>
         <div className="w-full md:w-3/4">
@@ -134,7 +164,7 @@ export default function CategoryPage() {
             {cleanParams(subcategory)} Items
           </h2>
           {loading ? (
-            <div>Loading...</div>
+            <div>Loading products...</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products?.map((item) => (
@@ -151,7 +181,9 @@ export default function CategoryPage() {
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <span className="font-bold">{item.product_price} UGX</span>
-                    <Button variant="outline">View Item</Button>
+                    <Button variant="outline" asChild>
+                      <Link href={`/detail/${item.id}`}>View Item</Link>
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}
